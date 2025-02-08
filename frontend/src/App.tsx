@@ -28,6 +28,7 @@ interface StakeInfo {
   stake: number;
   win: number;
   profit: number;
+  odds: number;
 }
 
 interface ArbitrageInfo {
@@ -179,7 +180,12 @@ function App() {
                           <h5>Optimal Stakes ($20 total) - Guaranteed Profit: ${prop.arbitrage.guaranteed_profit}</h5>
                           {Object.entries(prop.arbitrage.optimal_stakes).map(([bet, info]) => (
                             <div key={bet} className="stake-info">
-                              <p className="stake-bet">{bet}</p>
+                              <div className="stake-header">
+                                <p className="stake-bet">{bet}</p>
+                                <p className="stake-odds">
+                                  {info.odds > 0 ? '+' : ''}{info.odds}
+                                </p>
+                              </div>
                               <div className="stake-details">
                                 <span>Stake: ${info.stake}</span>
                                 <span>Win: ${info.win}</span>

@@ -62,10 +62,19 @@ def calculate_arbitrage(outcomes: Dict[str, Dict[str, dict]]) -> tuple[float, di
             for bet_type, (book, odds) in best_odds.items():
                 stake = (total_stake / odds) / total_probability
                 potential_win = stake * odds
+                
+                # Find original American odds for this book/bet combination
+                original_odds = None
+                for b, lines in books_odds.items():
+                    if b == book and bet_type in lines:
+                        original_odds = lines[bet_type]
+                        break
+                
                 stakes[f"{book} {bet_type} ({value})"] = {
                     "stake": round(stake, 2),
                     "win": round(potential_win, 2),
-                    "profit": round(potential_win - stake, 2)
+                    "profit": round(potential_win - stake, 2),
+                    "odds": original_odds
                 }
             
             # Calculate guaranteed profit

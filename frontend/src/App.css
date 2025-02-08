@@ -319,16 +319,32 @@ select {
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-.stake-info {
-  background-color: #f8f9fa;
-  border-radius: 4px;
-  padding: 8px;
-  margin: 8px 0;
+.stake-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
 }
 
 .stake-bet {
   font-weight: bold;
-  margin-bottom: 4px;
+  margin: 0;
+}
+
+.stake-odds {
+  font-weight: bold;
+  color: #2c5282;
+  background-color: #ebf8ff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin: 0;
+}
+
+.stake-info {
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  padding: 12px;
+  margin: 8px 0;
 }
 
 .stake-details {
@@ -336,6 +352,7 @@ select {
   gap: 12px;
   font-size: 0.9rem;
   color: #495057;
+  margin-top: 8px;
 }
 
 .stake-details span {
@@ -343,4 +360,6 @@ select {
   padding: 4px 8px;
   border-radius: 4px;
   border: 1px solid #e9ecef;
+  flex: 1;
+  text-align: center;
 }
