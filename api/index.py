@@ -22,53 +22,18 @@ class ArbitrageOpportunity:
 class ArbitrageFinder:
     def __init__(self, api_key: str):
         self.api_key = api_key
-        self.base_url = "https://api.sportsdata.io/v3/nba/odds/json"
+        self.base_url = "https://api.sportsdata.io/v3/nba/odds/json/BettingMarkets"
 
     def fetch_betting_markets(self, event_id: int) -> dict:
-        url = f"{self.base_url}/BettingMarkets/{event_id}"
+        url = f"{self.base_url}/{event_id}"
         params = {
             "key": self.api_key,
             "include": "available"
         }
         
-        max_retries = 3
-        retry_delay = 1  # seconds
-        
-        for attempt in range(max_retries):
-            try:
-                response = requests.get(url, params=params, timeout=10)
-                
-                # Check if we got a valid JSON response
-                if response.status_code == 200:
-                    try:
-                        return response.json()
-                    except json.JSONDecodeError:
-                        if attempt == max_retries - 1:
-                            raise ValueError(f"Invalid JSON response from API: {response.text}")
-                        continue
-                        
-                # Handle specific error codes
-                if response.status_code == 500:
-                    if attempt == max_retries - 1:
-                        raise requests.exceptions.RequestException(
-                            f"Server error (500) from SportsData.io API for event ID {event_id}. "
-                            "The API might be temporarily unavailable."
-                        )
-                    time.sleep(retry_delay)
-                    continue
-                    
-                # Handle other error codes
-                response.raise_for_status()
-                
-            except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
-                if attempt == max_retries - 1:
-                    raise requests.exceptions.RequestException(
-                        f"Connection error when accessing SportsData.io API: {str(e)}"
-                    )
-                time.sleep(retry_delay)
-                continue
-        
-        raise requests.exceptions.RequestException("Maximum retry attempts reached")
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        return response.json()
 
     def calculate_arbitrage(self, outcomes: List[BettingOutcome]) -> tuple[float, Dict[str, float]]:
         """
