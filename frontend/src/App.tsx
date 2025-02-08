@@ -41,12 +41,11 @@ interface PlayerProp {
 
 function App() {
   const [games, setGames] = useState<Game[]>([]);
-  const [selectedEventId, setSelectedEventId] = useState('');
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [url, setUrl] = useState('');
   const [apiData, setApiData] = useState<any>(null);
   const [error, setError] = useState('');
 
-  // Fetch games when component mounts
   useEffect(() => {
     const fetchGames = async () => {
       try {
@@ -88,79 +87,118 @@ function App() {
 
   const formatGameTime = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleString();
+    return date.toLocaleString(undefined, {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      timeZoneName: 'short'
+    });
   };
 
   return (
     <div className="App">
-      <h1>Sports API URL Generator</h1>
-      <div>
-        <select 
-          value={selectedEventId}
-          onChange={(e) => handleGameSelect(e.target.value)}
-        >
-          <option value="">Select a game</option>
-          {games.map((game) => (
-            <option key={game.betting_event_id} value={game.betting_event_id}>
-              {game.name} - {formatGameTime(game.start_time)}
-            </option>
-          ))}
-        </select>
-      </div>
-      {url && (
-        <div className="url-display">
-          <p>API URL:</p>
-          <p>{url}</p>
-        </div>
-      )}
-      {error && (
-        <div className="error-message">
-          <p>{error}</p>
-        </div>
-      )}
-      {apiData && (
-        <div className="data-display">
-          <h2>Player Props ({apiData.market_count})</h2>
-          {apiData.markets.map((prop: PlayerProp) => (
-            <div key={prop.market_id} className="prop-card">
-              <h3>{prop.player_name} - {prop.bet_type}</h3>
-              {prop.arbitrage && (
-                <div className="arbitrage-alert">
-                  <h4>🎯 Arbitrage Opportunity!</h4>
-                  <p>Profit: {prop.arbitrage.profit_percentage}%</p>
-                  <div className="stakes">
-                    <h5>Optimal Stakes ($1000 total):</h5>
-                    {Object.entries(prop.arbitrage.optimal_stakes).map(([bet, stake]) => (
-                      <p key={bet}>{bet}: ${stake}</p>
-                    ))}
+      <header className="app-header">
+        <h1>NBA Arbitrage Finder</h1>
+        <p>Select a game to view available betting markets</p>
+      </header>
+
+      <main>
+        {!selectedEventId ? (
+          <div className="games-grid">
+            {games.map((game) => (
+              <div
+                key={game.betting_event_id}
+                className="game-card"
+                onClick={() => handleGameSelect(game.betting_event_id.toString())}
+              >
+                <div className="game-time">
+                  {formatGameTime(game.start_time)}
+                </div>
+                <div className="teams">
+                  <div className="team away">
+                    <img 
+                      src={`/team-logos/${game.away_team.toLowerCase()}.png`} 
+                      alt={game.away_team}
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/team-logos/default.png';
+                      }}
+                    />
+                    <span>{game.away_team}</span>
+                  </div>
+                  <div className="vs">@</div>
+                  <div className="team home">
+                    <img 
+                      src={`/team-logos/${game.home_team.toLowerCase()}.png`} 
+                      alt={game.home_team}
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/team-logos/default.png';
+                      }}
+                    />
+                    <span>{game.home_team}</span>
                   </div>
                 </div>
-              )}
-              <div className="sportsbooks">
-                {prop.sportsbooks.map((book, index) => (
-                  <div key={index} className="sportsbook-card">
-                    <h4>{book.name}</h4>
-                    <div className="lines">
-                      {prop.outcome_types.map(type => (
-                        <div key={type} className="line">
-                          <p>
-                            {type} {book.outcomes[type].value !== null && 
-                              `${book.outcomes[type].value}`}
-                          </p>
-                          <p>
-                            {book.outcomes[type].odds > 0 ? '+' : ''}
-                            {book.outcomes[type].odds}
-                          </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="markets-view">
+            <button 
+              className="back-button"
+              onClick={() => setSelectedEventId(null)}
+            >
+              ← Back to Games
+            </button>
+            
+            {apiData && (
+              <div className="data-display">
+                <h2>Player Props ({apiData.market_count})</h2>
+                {apiData.markets.map((prop: PlayerProp) => (
+                  <div key={prop.market_id} className="prop-card">
+                    <h3>{prop.player_name} - {prop.bet_type}</h3>
+                    {prop.arbitrage && (
+                      <div className="arbitrage-alert">
+                        <h4>🎯 Arbitrage Opportunity!</h4>
+                        <p>Profit: {prop.arbitrage.profit_percentage}%</p>
+                        <div className="stakes">
+                          <h5>Optimal Stakes ($20 total):</h5>
+                          {Object.entries(prop.arbitrage.optimal_stakes).map(([bet, stake]) => (
+                            <p key={bet}>{bet}: ${stake}</p>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <div className="sportsbooks">
+                      {prop.sportsbooks.map((book, index) => (
+                        <div key={index} className="sportsbook-card">
+                          <h4>{book.name}</h4>
+                          <div className="lines">
+                            {prop.outcome_types.map(type => (
+                              <div key={type} className="line">
+                                <p>
+                                  {type} {book.outcomes[type].value !== null && 
+                                    `${book.outcomes[type].value}`}
+                                </p>
+                                <p>
+                                  {book.outcomes[type].odds > 0 ? '+' : ''}
+                                  {book.outcomes[type].odds}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       ))}
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            )}
+          </div>
+        )}
+      </main>
     </div>
   );
 }
