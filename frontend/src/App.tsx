@@ -42,7 +42,6 @@ interface PlayerProp {
 function App() {
   const [games, setGames] = useState<Game[]>([]);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
-  const [url, setUrl] = useState('');
   const [apiData, setApiData] = useState<any>(null);
   const [error, setError] = useState('');
 
@@ -71,7 +70,6 @@ function App() {
     try {
       const response = await fetch(`/api/arbitrage/${eventId}`);
       const data = await response.json();
-      setUrl(data.debug_url);
       if (data.error) {
         setError(data.error);
         setApiData(null);
@@ -97,6 +95,10 @@ function App() {
     });
   };
 
+  const getTeamInitials = (teamName: string) => {
+    return teamName.split(' ').map(word => word[0]).join('');
+  };
+
   return (
     <div className="App">
       <header className="app-header">
@@ -105,6 +107,12 @@ function App() {
       </header>
 
       <main>
+        {error && (
+          <div className="error-message">
+            {error}
+          </div>
+        )}
+        
         {!selectedEventId ? (
           <div className="games-grid">
             {games.map((game) => (
@@ -118,26 +126,16 @@ function App() {
                 </div>
                 <div className="teams">
                   <div className="team away">
-                    <img 
-                      src={`/team-logos/${game.away_team.toLowerCase()}.png`} 
-                      alt={game.away_team}
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = '/team-logos/default.png';
-                      }}
-                    />
+                    <div className="team-circle">
+                      {getTeamInitials(game.away_team)}
+                    </div>
                     <span>{game.away_team}</span>
                   </div>
                   <div className="vs">@</div>
                   <div className="team home">
-                    <img 
-                      src={`/team-logos/${game.home_team.toLowerCase()}.png`} 
-                      alt={game.home_team}
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = '/team-logos/default.png';
-                      }}
-                    />
+                    <div className="team-circle">
+                      {getTeamInitials(game.home_team)}
+                    </div>
                     <span>{game.home_team}</span>
                   </div>
                 </div>
