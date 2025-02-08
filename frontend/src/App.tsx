@@ -170,16 +170,17 @@ function App() {
             {apiData && (
               <div className="data-display">
                 <h2>Player Props ({apiData.market_count})</h2>
-                {apiData.markets.map((prop: PlayerProp) => (
-                  <div key={prop.market_id} className="prop-card">
-                    <h3>{prop.player_name} - {prop.bet_type}</h3>
-                    {prop.arbitrage && (
+                {apiData.markets
+                  .filter((market: PlayerProp) => market.arbitrage)
+                  .map((market: PlayerProp) => (
+                    <div key={market.market_id} className="prop-card">
+                      <h3>{market.player_name} - {market.bet_type}</h3>
                       <div className="arbitrage-alert">
                         <h4>🎯 Arbitrage Opportunity!</h4>
-                        <p>Profit: {prop.arbitrage.profit_percentage}%</p>
+                        <p>Profit: {market.arbitrage.profit_percentage}%</p>
                         <div className="stakes">
-                          <h5>Optimal Stakes ($20 total) - Guaranteed Profit: ${prop.arbitrage.guaranteed_profit}</h5>
-                          {Object.entries(prop.arbitrage.optimal_stakes).map(([bet, info]) => (
+                          <h5>Optimal Stakes ($20 total) - Guaranteed Profit: ${market.arbitrage.guaranteed_profit}</h5>
+                          {Object.entries(market.arbitrage.optimal_stakes).map(([bet, info]) => (
                             <div key={bet} className="stake-info">
                               <div className="stake-header">
                                 <p className="stake-bet">
@@ -209,30 +210,29 @@ function App() {
                           ))}
                         </div>
                       </div>
-                    )}
-                    <div className="sportsbooks">
-                      {prop.sportsbooks.map((book, index) => (
-                        <div key={index} className="sportsbook-card">
-                          <h4>{book.name}</h4>
-                          <div className="lines">
-                            {prop.outcome_types.map(type => (
-                              <div key={type} className="line">
-                                <p>
-                                  {type} {book.outcomes[type].value !== null && 
-                                    `${book.outcomes[type].value}`}
-                                </p>
-                                <p>
-                                  {book.outcomes[type].odds > 0 ? '+' : ''}
-                                  {book.outcomes[type].odds}
-                                </p>
-                              </div>
-                            ))}
+                      <div className="sportsbooks">
+                        {market.sportsbooks.map((book, index) => (
+                          <div key={index} className="sportsbook-card">
+                            <h4>{book.name}</h4>
+                            <div className="lines">
+                              {market.outcome_types.map(type => (
+                                <div key={type} className="line">
+                                  <p>
+                                    {type} {book.outcomes[type].value !== null && 
+                                      `${book.outcomes[type].value}`}
+                                  </p>
+                                  <p>
+                                    {book.outcomes[type].odds > 0 ? '+' : ''}
+                                    {book.outcomes[type].odds}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             )}
           </div>
