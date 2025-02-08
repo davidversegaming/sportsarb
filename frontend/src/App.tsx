@@ -8,6 +8,8 @@ interface Game {
   away_team: string;
   home_team: string;
   status: string;
+  has_arbitrage: boolean;
+  best_profit: number;
 }
 
 interface BettingLine {
@@ -118,9 +120,14 @@ function App() {
             {games.map((game) => (
               <div
                 key={game.betting_event_id}
-                className="game-card"
+                className={`game-card ${game.has_arbitrage ? 'has-arbitrage' : ''}`}
                 onClick={() => handleGameSelect(game.betting_event_id.toString())}
               >
+                {game.has_arbitrage && (
+                  <div className="arbitrage-badge">
+                    🎯 {game.best_profit}% Profit
+                  </div>
+                )}
                 <div className="game-time">
                   {formatGameTime(game.start_time)}
                 </div>

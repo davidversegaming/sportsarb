@@ -2,6 +2,7 @@ from fastapi import FastAPI
 import requests
 from datetime import datetime, timedelta
 from typing import Dict, List
+import asyncio
 
 app = FastAPI()
 
@@ -101,13 +102,56 @@ async def get_scheduled_games():
                 
                 # Only include games in next 48 hours
                 if now <= start_time <= cutoff:
+                    # Get arbitrage opportunities for this game
+                    markets_url = f"{BASE_URL}/BettingMarkets/{game.get('BettingEventID')}?key={API_KEY}&include=available"
+                    markets_response = requests.get(markets_url)
+                    markets_data = markets_response.json()
+                    
+                    has_arbitrage = False
+                    best_profit = 0
+                    
+                    if isinstance(markets_data, list):
+                        for market in markets_data:
+                            if (market.get("BettingMarketType") == "Player Prop" and 
+                                market.get("AnyBetsAvailable") == True):
+                                
+                                # Group outcomes by sportsbook
+                                sportsbook_outcomes = {}
+                                for outcome in market.get("BettingOutcomes", []):
+                                    if (outcome.get("IsAvailable") and 
+                                        outcome.get("BettingOutcomeType") in ["Over", "Under"]):
+                                        sportsbook = outcome.get("SportsBook", {}).get("Name")
+                                        outcome_type = outcome.get("BettingOutcomeType")
+                                        
+                                        if sportsbook not in sportsbook_outcomes:
+                                            sportsbook_outcomes[sportsbook] = {}
+                                        
+                                        sportsbook_outcomes[sportsbook][outcome_type] = {
+                                            "odds": outcome.get("PayoutAmerican"),
+                                            "value": outcome.get("Value")
+                                        }
+                                
+                                # Check for arbitrage opportunities
+                                odds_for_arbitrage = {
+                                    book: outcomes
+                                    for book, outcomes in sportsbook_outcomes.items()
+                                    if len(outcomes) == 2  # Must have both Over and Under
+                                }
+                                
+                                profit_percentage, _ = calculate_arbitrage(odds_for_arbitrage)
+                                if profit_percentage > best_profit:
+                                    best_profit = profit_percentage
+                                    has_arbitrage = True
+                    
                     scheduled_games.append({
                         "betting_event_id": game.get("BettingEventID"),
                         "name": game.get("Name"),
                         "start_time": game.get("StartDate"),
                         "away_team": game.get("AwayTeam"),
                         "home_team": game.get("HomeTeam"),
-                        "status": game.get("GameStatus")
+                        "status": game.get("GameStatus"),
+                        "has_arbitrage": has_arbitrage,
+                        "best_profit": round(best_profit, 2) if has_arbitrage else 0
                     })
         
         # Sort by start time

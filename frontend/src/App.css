@@ -300,3 +300,21 @@ select {
   font-size: 1.1rem;
   margin-top: 0.5rem;
 }
+
+.game-card.has-arbitrage {
+  border: 2px solid #28a745;
+  position: relative;
+}
+
+.arbitrage-badge {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  background: #28a745;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
