@@ -195,7 +195,9 @@ function App() {
                             step="1"
                           />
                           <span className="guaranteed-profit">
-                            Guaranteed Profit: ${(market.arbitrage?.guaranteed_profit || 0).toFixed(2)}
+                            Guaranteed Profit: ${Object.values(market.arbitrage!.optimal_stakes)[0].profit * 
+                              ((totalStakes[market.market_id] || 20) / 20)
+                            .toFixed(2)}
                           </span>
                         </div>
                         <div className="stakes">
