@@ -101,7 +101,7 @@ async def get_scheduled_games():
         
         # Get current time and 48 hours from now
         current_time = datetime.now()
-        cutoff_time = current_time - timedelta(hours=2)  # Subtract 2 hours to prevent early hiding
+        cutoff_time = current_time - timedelta(hours=5)  # Subtract 5 hours to prevent early hiding
             
         scheduled_games = []
         for game in data:
