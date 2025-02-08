@@ -152,7 +152,7 @@ function App() {
                 onClick={() => handleGameSelect(game.betting_event_id.toString())}
               >
                 {game.has_arbitrage && (
-                  <div className="arbitrage-badge">
+                  <div className={`arbitrage-badge ${game.best_profit >= 1 ? 'arbitrage-badge-high' : 'arbitrage-badge-low'}`}>
                     🎯 {game.best_profit}% Profit
                   </div>
                 )}
