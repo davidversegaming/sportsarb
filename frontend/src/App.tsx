@@ -55,7 +55,6 @@ function App() {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [apiData, setApiData] = useState<any>(null);
   const [error, setError] = useState('');
-  const [arbitrageData, setArbitrageData] = useState<any>({});
 
   useEffect(() => {
     const fetchGames = async () => {
@@ -88,7 +87,6 @@ function App() {
       } else {
         setError('');
         setApiData(data.data);
-        setArbitrageData(data.data.arbitrageData || {});
       }
     } catch (err) {
       setError('Failed to fetch data');
@@ -157,49 +155,6 @@ function App() {
                     <span>{game.home_team}</span>
                   </div>
                 </div>
-                {game.has_arbitrage && arbitrageData[game.betting_event_id] && (
-                  <div className="arbitrage-details">
-                    {arbitrageData[game.betting_event_id].markets
-                      .filter((market: any) => market.arbitrage)
-                      .map((market: any, index: number) => (
-                        <div key={index} className="arbitrage-opportunity">
-                          <h4>🎯 Arbitrage Opportunity!</h4>
-                          <p>Profit: {market.arbitrage.profit_percentage}%</p>
-                          <div className="stakes">
-                            <h5>Optimal Stakes ($20 total) - Guaranteed Profit: ${market.arbitrage.guaranteed_profit}</h5>
-                            {Object.entries(market.arbitrage.optimal_stakes).map(([bet, info]) => (
-                              <div key={bet} className="stake-info">
-                                <div className="stake-header">
-                                  <p className="stake-bet">
-                                    {info.url ? (
-                                      <a 
-                                        href={info.url} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        onClick={(e) => e.stopPropagation()}
-                                      >
-                                        {bet} 🔗
-                                      </a>
-                                    ) : (
-                                      bet
-                                    )}
-                                  </p>
-                                  <p className="stake-odds">
-                                    {info.odds > 0 ? '+' : ''}{info.odds}
-                                  </p>
-                                </div>
-                                <div className="stake-details">
-                                  <span>Stake: ${info.stake}</span>
-                                  <span>Win: ${info.win}</span>
-                                  <span>Profit: ${info.profit}</span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                )}
               </div>
             ))}
           </div>
