@@ -3,37 +3,18 @@ import './App.css';
 
 function App() {
   const [eventId, setEventId] = useState('');
-  const [opportunities, setOpportunities] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [debugUrl, setDebugUrl] = useState('');
+  const [url, setUrl] = useState('');
 
-  const findOpportunities = async () => {
+  const handleClick = async () => {
     if (!eventId) return;
-    setLoading(true);
-    setError('');
-    try {
-      const response = await fetch(`/api/arbitrage/${eventId}`);
-      const data = await response.json();
-      
-      if (data.error) {
-        setError(data.error);
-        setOpportunities([]);
-      } else {
-        setDebugUrl(data.debug_url || '');
-        setOpportunities(data.opportunities || []);
-      }
-    } catch (err) {
-      console.error(err);
-      setError(err.message || 'Failed to fetch opportunities');
-      setOpportunities([]);
-    }
-    setLoading(false);
+    const response = await fetch(`/api/arbitrage/${eventId}`);
+    const data = await response.json();
+    setUrl(data.debug_url);
   };
 
   return (
     <div className="App">
-      <h1>Sports Arbitrage Finder</h1>
+      <h1>Sports API URL Generator</h1>
       <div>
         <input
           type="number"
@@ -41,32 +22,15 @@ function App() {
           onChange={(e) => setEventId(e.target.value)}
           placeholder="Enter Event ID"
         />
-        <button onClick={findOpportunities} disabled={loading}>
-          {loading ? 'Searching...' : 'Find Opportunities'}
+        <button onClick={handleClick}>
+          Show API URL
         </button>
       </div>
-      {debugUrl && (
-        <div className="debug-url">
-          <p>API URL: {debugUrl}</p>
+      {url && (
+        <div className="url-display">
+          <p>API URL:</p>
+          <p>{url}</p>
         </div>
-      )}
-      {error && (
-        <div className="error-message">
-          <p>{error}</p>
-        </div>
-      )}
-      {opportunities.length > 0 ? (
-        <div>
-          <h2>Found Opportunities:</h2>
-          {opportunities.map((opp, index) => (
-            <div key={index}>
-              <h3>{opp.market_type}</h3>
-              <p>Profit: {opp.profit_percentage.toFixed(2)}%</p>
-            </div>
-          ))}
-        </div>
-      ) : (
-        !error && opportunities && <div><h2>No arbitrage opportunities found</h2></div>
       )}
     </div>
   );
