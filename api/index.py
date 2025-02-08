@@ -58,6 +58,8 @@ def calculate_arbitrage(outcomes: Dict[str, Dict[str, dict]]) -> tuple[float, di
             
             # Calculate optimal stakes for a total stake of $20
             total_stake = 20
+            guaranteed_profit = round(total_stake * (1 - total_probability), 2)
+            
             stakes = {}
             for bet_type, (book, odds) in best_odds.items():
                 stake = (total_stake / odds) / total_probability
@@ -73,12 +75,9 @@ def calculate_arbitrage(outcomes: Dict[str, Dict[str, dict]]) -> tuple[float, di
                 stakes[f"{book} {bet_type} ({value})"] = {
                     "stake": round(stake, 2),
                     "win": round(potential_win, 2),
-                    "profit": round(potential_win - stake, 2),
+                    "profit": guaranteed_profit,  # Use the same guaranteed profit for all outcomes
                     "odds": original_odds
                 }
-            
-            # Calculate guaranteed profit
-            guaranteed_profit = round(total_stake * (1 - total_probability), 2)
             
             # Keep the best arbitrage opportunity
             if profit_percentage > best_arbitrage[0]:
