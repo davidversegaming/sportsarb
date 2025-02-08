@@ -33,6 +33,17 @@ function App() {
           {loading ? 'Searching...' : 'Find Opportunities'}
         </button>
       </div>
+      {opportunities.length > 0 && (
+        <div>
+          <h2>Found Opportunities:</h2>
+          {opportunities.map((opp, index) => (
+            <div key={index}>
+              <h3>{opp.market_type}</h3>
+              <p>Profit: {opp.profit_percentage.toFixed(2)}%</p>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
