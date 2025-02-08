@@ -69,9 +69,10 @@ def calculate_arbitrage(outcomes: Dict[str, Dict[str, dict]]) -> tuple[float, di
                 original_odds = None
                 url = None
                 for b, lines in books_odds.items():
-                    if b == book and bet_type in lines:
-                        original_odds = lines[bet_type]["odds"]
-                        url = lines[bet_type].get("url")  # Use .get() method instead
+                    if b == book and isinstance(lines, dict) and bet_type in lines:
+                        if isinstance(lines[bet_type], dict):
+                            original_odds = lines[bet_type].get("odds")
+                            url = lines[bet_type].get("url")
                         break
                 
                 stakes[f"{book} {bet_type} ({value})"] = {
