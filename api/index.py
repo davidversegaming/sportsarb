@@ -1,13 +1,81 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
+from fastapi.websockets import WebSocketDisconnect
 import requests
 from datetime import datetime, timedelta
 from typing import Dict, List
 import asyncio
+import json
 
 app = FastAPI()
 
 API_KEY = "4f101f522aed47a99cc7a9738c2fc57d"
 BASE_URL = "https://api.sportsdata.io/v3/nba/odds/json"
+
+# Manage WebSocket connections
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: List[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    async def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def broadcast(self, message: dict):
+        # Send message to all connected clients
+        for connection in self.active_connections:
+            try:
+                await connection.send_json(message)
+            except:
+                # Remove dead connections
+                await self.disconnect(connection)
+
+manager = ConnectionManager()
+
+# WebSocket endpoint
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            # Keep connection alive and handle any incoming messages
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        await manager.disconnect(websocket)
+
+# Background task to check for arbitrage opportunities
+@app.on_event("startup")
+async def start_arbitrage_monitoring():
+    asyncio.create_task(monitor_arbitrage_opportunities())
+
+async def monitor_arbitrage_opportunities():
+    while True:
+        try:
+            # Get current games (using existing function)
+            response = await get_scheduled_games()
+            games = response.get("games", [])
+            
+            for game in games:
+                # Check each game for arbitrage opportunities
+                event_id = game["betting_event_id"]
+                arbitrage_data = await get_arbitrage(event_id)
+                
+                # If arbitrage opportunities exist, broadcast to all clients
+                if arbitrage_data.get("data", {}).get("market_count", 0) > 0:
+                    await manager.broadcast({
+                        "type": "arbitrage_update",
+                        "game": game,
+                        "opportunities": arbitrage_data["data"]
+                    })
+            
+            # Wait 30 seconds before checking again
+            await asyncio.sleep(30)
+            
+        except Exception as e:
+            print(f"Error in arbitrage monitoring: {e}")
+            await asyncio.sleep(5)  # Wait before retry
 
 def calculate_arbitrage(outcomes: Dict[str, Dict[str, dict]], market_data: dict) -> tuple[float, dict, float]:
     """
