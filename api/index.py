@@ -71,7 +71,7 @@ class ArbitrageFinder:
             
         return 0, {}
 
-    def find_arbitrage_opportunities(self, event_id: int) -> List[ArbitrageOpportunity]:
+    def find_arbitrage_opportunities(self, event_id: int) -> dict:
         result = self.fetch_betting_markets(event_id)
         
         # Print debug info
@@ -81,7 +81,11 @@ class ArbitrageFinder:
         
         if "error" in result:
             print(f"Error: {result['error']}")
-            return []
+            return {
+                "opportunities": [],
+                "debug_url": result.get("debug_url", ""),
+                "error": result.get("error", None)
+            }
         
         markets = result.get("data", [])
         opportunities = []
@@ -137,7 +141,11 @@ class ArbitrageFinder:
                 ))
 
         print(f"\nFound {len(opportunities)} total arbitrage opportunities")
-        return opportunities
+        return {
+            "opportunities": opportunities,
+            "debug_url": result.get("debug_url", ""),
+            "error": result.get("error", None)
+        }
 
 def main():
     api_key = "4f101f522aed47a99cc7a9738c2fc57d"
@@ -152,9 +160,9 @@ def main():
     finder = ArbitrageFinder(api_key)
     opportunities = finder.find_arbitrage_opportunities(event_id)
     
-    if opportunities:
-        print(f"Found {len(opportunities)} arbitrage opportunities!")
-        for opp in opportunities:
+    if opportunities["opportunities"]:
+        print(f"Found {len(opportunities['opportunities'])} arbitrage opportunities!")
+        for opp in opportunities["opportunities"]:
             print(f"\nMarket: {opp.market_type}")
             print(f"Profit: {opp.profit_percentage:.2f}%")
             print("Required stakes:")

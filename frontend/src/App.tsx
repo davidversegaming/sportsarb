@@ -15,8 +15,14 @@ function App() {
     try {
       const response = await fetch(`/api/arbitrage/${eventId}`);
       const data = await response.json();
-      setDebugUrl(data.debug_url || '');
-      setOpportunities(data.opportunities || []);
+      
+      if (data.error) {
+        setError(data.error);
+        setOpportunities([]);
+      } else {
+        setDebugUrl(data.debug_url || '');
+        setOpportunities(data.opportunities || []);
+      }
     } catch (err) {
       console.error(err);
       setError(err.message || 'Failed to fetch opportunities');
