@@ -9,7 +9,7 @@ app = FastAPI()
 API_KEY = "4f101f522aed47a99cc7a9738c2fc57d"
 BASE_URL = "https://api.sportsdata.io/v3/nba/odds/json"
 
-def calculate_arbitrage(outcomes: Dict[str, Dict[str, dict]]) -> tuple[float, dict, float]:
+def calculate_arbitrage(outcomes: Dict[str, Dict[str, dict]], market_data: dict) -> tuple[float, dict, float]:
     """
     Calculate if there's an arbitrage opportunity between different sportsbooks
     Returns: (profit_percentage, optimal_stakes, guaranteed_profit)
@@ -72,7 +72,7 @@ def calculate_arbitrage(outcomes: Dict[str, Dict[str, dict]]) -> tuple[float, di
                     if b == book and bet_type in lines:
                         original_odds = lines[bet_type]
                         # Get URL from original outcome data
-                        for outcome in market.get("BettingOutcomes", []):
+                        for outcome in market_data.get("BettingOutcomes", []):
                             if (outcome.get("SportsBook", {}).get("Name") == book and 
                                 outcome.get("BettingOutcomeType") == bet_type):
                                 url = outcome.get("SportsbookUrl")
@@ -151,7 +151,7 @@ async def get_scheduled_games():
                                     if len(outcomes) == 2  # Must have both Over and Under
                                 }
                                 
-                                profit_percentage, _, _ = calculate_arbitrage(odds_for_arbitrage)
+                                profit_percentage, _, _ = calculate_arbitrage(odds_for_arbitrage, market)
                                 if profit_percentage > best_profit:
                                     best_profit = profit_percentage
                                     has_arbitrage = True
@@ -208,10 +208,6 @@ async def get_arbitrage(event_id: int):
                                 "value": outcome.get("Value")
                             }
                     
-                    # Only process markets with both Over and Under
-                    if len(outcome_types) != 2 or "Over" not in outcome_types or "Under" not in outcome_types:
-                        continue
-                    
                     # Check for arbitrage opportunities
                     odds_for_arbitrage = {
                         book: outcomes
@@ -219,7 +215,7 @@ async def get_arbitrage(event_id: int):
                         if len(outcomes) == 2  # Must have both Over and Under
                     }
                     
-                    profit_percentage, optimal_stakes, guaranteed_profit = calculate_arbitrage(odds_for_arbitrage)
+                    profit_percentage, optimal_stakes, guaranteed_profit = calculate_arbitrage(odds_for_arbitrage, market)
                     
                     prop_data = {
                         "market_id": market.get("BettingMarketID"),
@@ -233,7 +229,7 @@ async def get_arbitrage(event_id: int):
                                 "outcomes": outcomes
                             }
                             for sportsbook, outcomes in sportsbook_outcomes.items()
-                            if len(outcomes) == len(outcome_types)
+                            if len(outcomes) == 2  # Must have both Over and Under
                         ],
                         "arbitrage": {
                             "profit_percentage": round(profit_percentage, 2),
