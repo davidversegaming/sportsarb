@@ -3,9 +3,11 @@ import './App.css';
 
 interface Game {
   betting_event_id: number;
-  game_time: string;
+  name: string;
+  start_time: string;
   away_team: string;
   home_team: string;
+  status: string;
 }
 
 function App() {
@@ -55,6 +57,11 @@ function App() {
     }
   };
 
+  const formatGameTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleString();
+  };
+
   return (
     <div className="App">
       <h1>Sports API URL Generator</h1>
@@ -66,7 +73,7 @@ function App() {
           <option value="">Select a game</option>
           {games.map((game) => (
             <option key={game.betting_event_id} value={game.betting_event_id}>
-              {game.away_team} @ {game.home_team} - {new Date(game.game_time).toLocaleString()}
+              {game.name} - {formatGameTime(game.start_time)}
             </option>
           ))}
         </select>

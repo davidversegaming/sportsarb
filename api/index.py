@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 import requests
+from datetime import datetime
 
 app = FastAPI()
 
@@ -8,26 +9,35 @@ BASE_URL = "https://api.sportsdata.io/v3/nba/odds/json"
 
 @app.get("/api/games")
 async def get_scheduled_games():
-    # Fetch scheduled games
-    url = f"{BASE_URL}/BettingEventsByDate/2024?key={API_KEY}"
+    # Fix the URL to use the correct endpoint
+    url = f"{BASE_URL}/BettingEvents/2025REG?key={API_KEY}"
     try:
         response = requests.get(url)
         data = response.json()
         
-        # Filter for scheduled games and format them
-        scheduled_games = [
-            {
-                "betting_event_id": game["BettingEventID"],
-                "game_time": game["DateTime"],
-                "away_team": game["AwayTeam"],
-                "home_team": game["HomeTeam"]
-            }
-            for game in data
-            if game["GameStatus"] == "Scheduled"
-        ]
+        # Debug print
+        print(f"API Response type: {type(data)}")
+        print(f"API Response: {data[:200]}...")  # Print first 200 chars
+        
+        # Make sure data is a list
+        if not isinstance(data, list):
+            return {"error": f"Expected list but got {type(data)}", "data": data}
+            
+        scheduled_games = []
+        for game in data:
+            if isinstance(game, dict) and game.get("GameStatus") == "Scheduled":
+                scheduled_games.append({
+                    "betting_event_id": game.get("BettingEventID"),
+                    "name": game.get("Name"),
+                    "start_time": game.get("StartDate"),
+                    "away_team": game.get("AwayTeam"),
+                    "home_team": game.get("HomeTeam"),
+                    "status": game.get("GameStatus")
+                })
         
         return {"games": scheduled_games}
     except Exception as e:
+        print(f"Error in get_scheduled_games: {str(e)}")
         return {"error": str(e)}
 
 @app.get("/api/arbitrage/{event_id}")
