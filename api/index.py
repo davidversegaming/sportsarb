@@ -8,49 +8,65 @@ app = FastAPI()
 API_KEY = "4f101f522aed47a99cc7a9738c2fc57d"
 BASE_URL = "https://api.sportsdata.io/v3/nba/odds/json"
 
-def calculate_arbitrage(outcomes: Dict[str, Dict[str, float]]) -> tuple[float, dict]:
+def calculate_arbitrage(outcomes: Dict[str, Dict[str, dict]]) -> tuple[float, dict]:
     """
     Calculate if there's an arbitrage opportunity between different sportsbooks
     Returns: (profit_percentage, optimal_stakes)
     """
-    # Convert American odds to decimal
-    decimal_odds = {}
+    # First, group outcomes by their value
+    outcomes_by_value = {}
     for book, lines in outcomes.items():
-        decimal_odds[book] = {}
-        for bet_type, odds in lines.items():
-            if odds > 0:
-                decimal_odds[book][bet_type] = 1 + (odds / 100)
-            else:
-                decimal_odds[book][bet_type] = 1 + (100 / abs(odds))
+        for bet_type, data in lines.items():
+            value = data["value"]
+            odds = data["odds"]
+            
+            if value not in outcomes_by_value:
+                outcomes_by_value[value] = {}
+            if book not in outcomes_by_value[value]:
+                outcomes_by_value[value][book] = {}
+            
+            outcomes_by_value[value][book][bet_type] = odds
     
-    # Calculate implied probabilities
-    total_probability = 0
-    best_odds = {}
+    # Check each value group for arbitrage
+    best_arbitrage = (0, {})
     
-    # Find best odds for each outcome type
-    for book, lines in decimal_odds.items():
-        for bet_type, odds in lines.items():
-            if bet_type not in best_odds or odds > best_odds[bet_type][1]:
-                best_odds[bet_type] = (book, odds)
-    
-    # Calculate total probability using best odds
-    for bet_type, (book, odds) in best_odds.items():
-        total_probability += 1 / odds
-    
-    # If total probability < 1, there's an arbitrage opportunity
-    if total_probability < 1:
-        profit_percentage = (1 - total_probability) * 100
+    for value, books_odds in outcomes_by_value.items():
+        # Convert American odds to decimal
+        decimal_odds = {}
+        for book, lines in books_odds.items():
+            decimal_odds[book] = {}
+            for bet_type, odds in lines.items():
+                if odds > 0:
+                    decimal_odds[book][bet_type] = 1 + (odds / 100)
+                else:
+                    decimal_odds[book][bet_type] = 1 + (100 / abs(odds))
         
-        # Calculate optimal stakes for a total stake of 1000
-        total_stake = 1000
-        stakes = {}
-        for bet_type, (book, odds) in best_odds.items():
-            stake = (total_stake / odds) / total_probability
-            stakes[f"{book} {bet_type}"] = round(stake, 2)
+        # Find best odds for each outcome type
+        best_odds = {}
+        for book, lines in decimal_odds.items():
+            for bet_type, odds in lines.items():
+                if bet_type not in best_odds or odds > best_odds[bet_type][1]:
+                    best_odds[bet_type] = (book, odds)
         
-        return profit_percentage, stakes
+        # Calculate total probability using best odds
+        total_probability = sum(1 / odds for _, odds in best_odds.values())
+        
+        # If total probability < 1, there's an arbitrage opportunity
+        if total_probability < 1:
+            profit_percentage = (1 - total_probability) * 100
+            
+            # Calculate optimal stakes for a total stake of 1000
+            total_stake = 1000
+            stakes = {}
+            for bet_type, (book, odds) in best_odds.items():
+                stake = (total_stake / odds) / total_probability
+                stakes[f"{book} {bet_type} ({value})"] = round(stake, 2)
+            
+            # Keep the best arbitrage opportunity
+            if profit_percentage > best_arbitrage[0]:
+                best_arbitrage = (profit_percentage, stakes)
     
-    return 0, {}
+    return best_arbitrage
 
 @app.get("/api/games")
 async def get_scheduled_games():
@@ -119,10 +135,7 @@ async def get_arbitrage(event_id: int):
                     
                     # Check for arbitrage opportunities
                     odds_for_arbitrage = {
-                        book: {
-                            outcome_type: outcomes[outcome_type]["odds"]
-                            for outcome_type in outcomes
-                        }
+                        book: outcomes
                         for book, outcomes in sportsbook_outcomes.items()
                         if len(outcomes) == len(outcome_types)
                     }
