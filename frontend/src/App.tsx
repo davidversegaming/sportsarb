@@ -226,7 +226,7 @@ function App() {
                                     )}
                                   </p>
                                   <p className="stake-odds">
-                                    {market.sportsbooks[0].outcomes[bet].odds > 0 ? '+' : ''}{market.sportsbooks[0].outcomes[bet].odds}
+                                    {info.odds > 0 ? '+' : ''}{info.odds}
                                   </p>
                                 </div>
                                 <div className="stake-details">
