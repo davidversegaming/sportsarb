@@ -178,7 +178,7 @@ function App() {
                       <h3>{market.player_name} - {market.bet_type}</h3>
                       <div className="arbitrage-alert">
                         <h4>🎯 Arbitrage Opportunity!</h4>
-                        <p>Profit: {market.arbitrage.profit_percentage}%</p>
+                        <p>Profit: {market.arbitrage!.profit_percentage}%</p>
                         <div className="stakes">
                           <div className="stake-input">
                             <label htmlFor={`total-stake-${market.market_id}`}>Total Stake: $</label>
@@ -197,9 +197,9 @@ function App() {
                               }}
                             />
                           </div>
-                          <h5>Optimal Stakes (${totalStakes[market.market_id] || 20} total) - Guaranteed Profit: ${((totalStakes[market.market_id] || 20) * market.arbitrage.profit_percentage / 100).toFixed(2)}</h5>
-                          {Object.entries(market.arbitrage.optimal_stakes).map(([bet, info]: [string, any]) => {
-                            const stakeRatio = info.stake / 20; // Calculate ratio from original $20 stake
+                          <h5>Optimal Stakes (${totalStakes[market.market_id] || 20} total) - Guaranteed Profit: ${((totalStakes[market.market_id] || 20) * market.arbitrage!.profit_percentage / 100).toFixed(2)}</h5>
+                          {Object.entries(market.arbitrage!.optimal_stakes).map(([bet, info]: [string, any]) => {
+                            const stakeRatio = info.stake / 20;
                             const newStake = stakeRatio * (totalStakes[market.market_id] || 20);
                             const newWin = (newStake * (100 + info.odds) / 100);
                             const newProfit = newWin - (totalStakes[market.market_id] || 20);
