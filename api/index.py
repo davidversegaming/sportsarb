@@ -65,18 +65,26 @@ def calculate_arbitrage(outcomes: Dict[str, Dict[str, dict]]) -> tuple[float, di
                 stake = (total_stake / odds) / total_probability
                 potential_win = stake * odds
                 
-                # Find original American odds for this book/bet combination
+                # Find original American odds and URL for this book/bet combination
                 original_odds = None
+                url = None
                 for b, lines in books_odds.items():
                     if b == book and bet_type in lines:
                         original_odds = lines[bet_type]
+                        # Get URL from original outcome data
+                        for outcome in market.get("BettingOutcomes", []):
+                            if (outcome.get("SportsBook", {}).get("Name") == book and 
+                                outcome.get("BettingOutcomeType") == bet_type):
+                                url = outcome.get("SportsbookUrl")
+                                break
                         break
                 
                 stakes[f"{book} {bet_type} ({value})"] = {
                     "stake": round(stake, 2),
                     "win": round(potential_win, 2),
-                    "profit": guaranteed_profit,  # Use the same guaranteed profit for all outcomes
-                    "odds": original_odds
+                    "profit": guaranteed_profit,
+                    "odds": original_odds,
+                    "url": url
                 }
             
             # Keep the best arbitrage opportunity

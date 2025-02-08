@@ -29,6 +29,7 @@ interface StakeInfo {
   win: number;
   profit: number;
   odds: number;
+  url?: string;  // Add optional URL
 }
 
 interface ArbitrageInfo {
@@ -181,7 +182,20 @@ function App() {
                           {Object.entries(prop.arbitrage.optimal_stakes).map(([bet, info]) => (
                             <div key={bet} className="stake-info">
                               <div className="stake-header">
-                                <p className="stake-bet">{bet}</p>
+                                <p className="stake-bet">
+                                  {info.url ? (
+                                    <a 
+                                      href={info.url} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      {bet} 🔗
+                                    </a>
+                                  ) : (
+                                    bet
+                                  )}
+                                </p>
                                 <p className="stake-odds">
                                   {info.odds > 0 ? '+' : ''}{info.odds}
                                 </p>
