@@ -104,3 +104,42 @@ select {
   margin: 20px 0;
   min-width: 300px;
 }
+
+.sportsbooks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.sportsbook-card {
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  min-width: 200px;
+}
+
+.sportsbook-card h4 {
+  margin: 0 0 10px 0;
+  color: #495057;
+}
+
+.lines {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.line p {
+  margin: 0;
+}

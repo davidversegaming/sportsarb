@@ -44,7 +44,6 @@ async def get_scheduled_games():
 async def get_arbitrage(event_id: int):
     url = f"{BASE_URL}/BettingMarkets/{event_id}?key={API_KEY}&include=available"
     
-    # Fetch data from the API
     try:
         response = requests.get(url)
         data = response.json()
@@ -56,25 +55,42 @@ async def get_arbitrage(event_id: int):
                 if (market.get("BettingMarketType") == "Player Prop" and 
                     market.get("AnyBetsAvailable") == True):
                     
+                    # Group outcomes by sportsbook
+                    sportsbook_outcomes = {}
+                    outcome_types = set()  # Track what types of outcomes we have
+                    
+                    for outcome in market.get("BettingOutcomes", []):
+                        if outcome.get("IsAvailable"):
+                            sportsbook = outcome.get("SportsBook", {}).get("Name")
+                            outcome_type = outcome.get("BettingOutcomeType")
+                            
+                            if sportsbook not in sportsbook_outcomes:
+                                sportsbook_outcomes[sportsbook] = {}
+                            
+                            outcome_types.add(outcome_type)
+                            sportsbook_outcomes[sportsbook][outcome_type] = {
+                                "odds": outcome.get("PayoutAmerican"),
+                                "value": outcome.get("Value")
+                            }
+                    
                     # Add relevant market info
                     prop_data = {
                         "market_id": market.get("BettingMarketID"),
                         "player_name": market.get("PlayerName"),
                         "bet_type": market.get("BettingBetType"),
                         "market_type": market.get("BettingMarketType"),
-                        "outcomes": []
+                        "outcome_types": list(outcome_types),  # Include the types of outcomes
+                        "sportsbooks": [
+                            {
+                                "name": sportsbook,
+                                "outcomes": outcomes
+                            }
+                            for sportsbook, outcomes in sportsbook_outcomes.items()
+                            if len(outcomes) == len(outcome_types)  # Only include if sportsbook has all outcome types
+                        ]
                     }
                     
-                    # Add betting outcomes
-                    for outcome in market.get("BettingOutcomes", []):
-                        if outcome.get("IsAvailable"):
-                            prop_data["outcomes"].append({
-                                "sportsbook": outcome.get("SportsBook", {}).get("Name"),
-                                "odds": outcome.get("PayoutAmerican"),
-                                "value": outcome.get("Value")
-                            })
-                    
-                    if prop_data["outcomes"]:  # Only add if there are available outcomes
+                    if prop_data["sportsbooks"]:  # Only add if there are available outcomes
                         player_props.append(prop_data)
         
         return {

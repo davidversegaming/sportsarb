@@ -16,12 +16,25 @@ interface BettingOutcome {
   value: number;
 }
 
+interface BettingLine {
+  odds: number;
+  value: number | null;
+}
+
+interface Sportsbook {
+  name: string;
+  outcomes: {
+    [key: string]: BettingLine;  // Dynamic outcome types
+  };
+}
+
 interface PlayerProp {
   market_id: number;
   player_name: string;
   bet_type: string;
   market_type: string;
-  outcomes: BettingOutcome[];
+  outcome_types: string[];
+  sportsbooks: Sportsbook[];
 }
 
 function App() {
@@ -106,15 +119,27 @@ function App() {
       {apiData && (
         <div className="data-display">
           <h2>Player Props ({apiData.market_count})</h2>
-          {apiData.markets.map((prop: PlayerProp, index: number) => (
+          {apiData.markets.map((prop: PlayerProp) => (
             <div key={prop.market_id} className="prop-card">
               <h3>{prop.player_name} - {prop.bet_type}</h3>
-              <div className="outcomes">
-                {prop.outcomes.map((outcome: BettingOutcome, oIndex: number) => (
-                  <div key={oIndex} className="outcome">
-                    <p>{outcome.sportsbook}</p>
-                    <p>Value: {outcome.value}</p>
-                    <p>Odds: {outcome.odds}</p>
+              <div className="sportsbooks">
+                {prop.sportsbooks.map((book, index) => (
+                  <div key={index} className="sportsbook-card">
+                    <h4>{book.name}</h4>
+                    <div className="lines">
+                      {prop.outcome_types.map(type => (
+                        <div key={type} className="line">
+                          <p>
+                            {type} {book.outcomes[type].value !== null && 
+                              `${book.outcomes[type].value}`}
+                          </p>
+                          <p>
+                            {book.outcomes[type].odds > 0 ? '+' : ''}
+                            {book.outcomes[type].odds}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>
