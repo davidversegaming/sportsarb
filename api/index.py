@@ -16,7 +16,18 @@ def calculate_arbitrage(outcomes: Dict[str, Dict[str, dict]]) -> tuple[float, di
     # First, group outcomes by their value
     outcomes_by_value = {}
     for book, lines in outcomes.items():
-        for bet_type, data in lines.items():
+        # Only process Over/Under outcomes
+        filtered_lines = {
+            bet_type: data 
+            for bet_type, data in lines.items() 
+            if bet_type in ["Over", "Under"]
+        }
+        
+        # Skip if we don't have both Over and Under
+        if len(filtered_lines) != 2:
+            continue
+            
+        for bet_type, data in filtered_lines.items():
             value = data["value"]
             odds = data["odds"]
             
@@ -55,8 +66,8 @@ def calculate_arbitrage(outcomes: Dict[str, Dict[str, dict]]) -> tuple[float, di
         if total_probability < 1:
             profit_percentage = (1 - total_probability) * 100
             
-            # Calculate optimal stakes for a total stake of 1000
-            total_stake = 1000
+            # Calculate optimal stakes for a total stake of $20
+            total_stake = 20
             stakes = {}
             for bet_type, (book, odds) in best_odds.items():
                 stake = (total_stake / odds) / total_probability
@@ -120,7 +131,8 @@ async def get_arbitrage(event_id: int):
                     outcome_types = set()
                     
                     for outcome in market.get("BettingOutcomes", []):
-                        if outcome.get("IsAvailable"):
+                        if (outcome.get("IsAvailable") and 
+                            outcome.get("BettingOutcomeType") in ["Over", "Under"]):
                             sportsbook = outcome.get("SportsBook", {}).get("Name")
                             outcome_type = outcome.get("BettingOutcomeType")
                             
@@ -133,11 +145,15 @@ async def get_arbitrage(event_id: int):
                                 "value": outcome.get("Value")
                             }
                     
+                    # Only process markets with both Over and Under
+                    if len(outcome_types) != 2 or "Over" not in outcome_types or "Under" not in outcome_types:
+                        continue
+                    
                     # Check for arbitrage opportunities
                     odds_for_arbitrage = {
                         book: outcomes
                         for book, outcomes in sportsbook_outcomes.items()
-                        if len(outcomes) == len(outcome_types)
+                        if len(outcomes) == 2  # Must have both Over and Under
                     }
                     
                     profit_percentage, optimal_stakes = calculate_arbitrage(odds_for_arbitrage)
@@ -154,7 +170,7 @@ async def get_arbitrage(event_id: int):
                                 "outcomes": outcomes
                             }
                             for sportsbook, outcomes in sportsbook_outcomes.items()
-                            if len(outcomes) == len(outcome_types)
+                            if len(outcomes) == 2  # Must have both Over and Under
                         ],
                         "arbitrage": {
                             "profit_percentage": round(profit_percentage, 2),
