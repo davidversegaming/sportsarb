@@ -31,12 +31,23 @@ class ArbitrageFinder:
             "include": "available"
         }
         
-        # Construct and return the full URL
+        # Construct the full URL
         full_url = f"{url}?key={self.api_key}&include=available"
-        return {
-            "data": requests.get(url, params=params).json(),
-            "debug_url": full_url
-        }
+        
+        try:
+            response = requests.get(url, params=params)
+            response.raise_for_status()  # This will raise an exception for error status codes
+            return {
+                "data": response.json(),
+                "debug_url": full_url
+            }
+        except requests.exceptions.RequestException as e:
+            # Return a proper JSON response even when there's an error
+            return {
+                "error": str(e),
+                "debug_url": full_url,
+                "data": None
+            }
 
     def calculate_arbitrage(self, outcomes: List[BettingOutcome]) -> tuple[float, Dict[str, float]]:
         """
