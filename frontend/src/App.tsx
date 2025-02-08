@@ -56,9 +56,11 @@ function App() {
   const [apiData, setApiData] = useState<any>(null);
   const [error, setError] = useState('');
   const [totalStakes, setTotalStakes] = useState<{ [key: string]: number }>({});
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchGames = async () => {
+      setIsLoading(true);
       try {
         const response = await fetch('/api/games');
         const data = await response.json();
@@ -69,6 +71,8 @@ function App() {
         }
       } catch (err) {
         setError('Failed to fetch games');
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -78,6 +82,7 @@ function App() {
   const handleGameSelect = async (eventId: string) => {
     if (!eventId) return;
     setSelectedEventId(eventId);
+    setIsLoading(true);
     
     try {
       const response = await fetch(`/api/arbitrage/${eventId}`);
@@ -92,6 +97,8 @@ function App() {
     } catch (err) {
       setError('Failed to fetch data');
       setApiData(null);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -132,7 +139,11 @@ function App() {
           </div>
         )}
         
-        {!selectedEventId ? (
+        {isLoading ? (
+          <div className="loading-spinner">
+            Loading...
+          </div>
+        ) : !selectedEventId ? (
           <div className="games-grid">
             {games.map((game) => (
               <div
