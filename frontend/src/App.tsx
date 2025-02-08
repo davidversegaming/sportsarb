@@ -1,24 +1,38 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import './App.css';
 
 function App() {
+  const [eventId, setEventId] = useState('');
+  const [opportunities, setOpportunities] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const findOpportunities = async () => {
+    if (!eventId) return;
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/arbitrage/${eventId}`);
+      const data = await response.json();
+      setOpportunities(data.opportunities);
+    } catch (err) {
+      console.error(err);
+    }
+    setLoading(false);
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Sports Arbitrage Finder</h1>
+      <div>
+        <input
+          type="number"
+          value={eventId}
+          onChange={(e) => setEventId(e.target.value)}
+          placeholder="Enter Event ID"
+        />
+        <button onClick={findOpportunities} disabled={loading}>
+          {loading ? 'Searching...' : 'Find Opportunities'}
+        </button>
+      </div>
     </div>
   );
 }
