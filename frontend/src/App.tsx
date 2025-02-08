@@ -6,17 +6,25 @@ function App() {
   const [opportunities, setOpportunities] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [debugInfo, setDebugInfo] = useState([]);
 
   const findOpportunities = async () => {
     if (!eventId) return;
     setLoading(true);
     setError('');
+    setDebugInfo([]);
     try {
       const response = await fetch(`/api/arbitrage/${eventId}`);
-      if (!response.ok) {
-        throw new Error(`Server returned ${response.status}: ${await response.text()}`);
-      }
       const data = await response.json();
+      
+      if (data.debug_info) {
+        setDebugInfo(data.debug_info);
+      }
+      
+      if (!response.ok) {
+        throw new Error(`Server returned ${response.status}: ${data.error || 'Unknown error'}`);
+      }
+      
       setOpportunities(data.opportunities || []);
     } catch (err) {
       console.error(err);
@@ -40,6 +48,14 @@ function App() {
           {loading ? 'Searching...' : 'Find Opportunities'}
         </button>
       </div>
+      {debugInfo.length > 0 && (
+        <div className="debug-info">
+          <h3>Debug Information:</h3>
+          {debugInfo.map((info, index) => (
+            <pre key={index}>{info}</pre>
+          ))}
+        </div>
+      )}
       {error && (
         <div className="error-message">
           <p>{error}</p>
