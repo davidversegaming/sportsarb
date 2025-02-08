@@ -409,9 +409,10 @@ select {
 .arbitrage-opportunity {
   background-color: white;
   border: 1px solid #e9ecef;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-bottom: 1rem;
+  border-radius: 0.75rem;
+  padding: 1.75rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .arbitrage-opportunity:last-child {
