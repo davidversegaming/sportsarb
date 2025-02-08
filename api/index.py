@@ -65,18 +65,21 @@ def calculate_arbitrage(outcomes: Dict[str, Dict[str, dict]]) -> tuple[float, di
                 stake = (total_stake / odds) / total_probability
                 potential_win = stake * odds
                 
-                # Find original American odds for this book/bet combination
+                # Get original odds and URL for this book/bet combination
                 original_odds = None
+                url = None
                 for b, lines in books_odds.items():
                     if b == book and bet_type in lines:
-                        original_odds = lines[bet_type]
+                        original_odds = lines[bet_type]["odds"]
+                        url = lines[bet_type].get("url")  # Use .get() method instead
                         break
                 
                 stakes[f"{book} {bet_type} ({value})"] = {
                     "stake": round(stake, 2),
                     "win": round(potential_win, 2),
                     "profit": guaranteed_profit,
-                    "odds": original_odds
+                    "odds": original_odds,
+                    "url": url
                 }
             
             # Keep the best arbitrage opportunity
