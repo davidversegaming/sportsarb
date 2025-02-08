@@ -49,12 +49,39 @@ async def get_arbitrage(event_id: int):
         response = requests.get(url)
         data = response.json()
         
-        # Return both the URL and some basic data
+        # Filter for player props and available bets
+        player_props = []
+        if isinstance(data, list):
+            for market in data:
+                if (market.get("BettingMarketType") == "Player Prop" and 
+                    market.get("AnyBetsAvailable") == True):
+                    
+                    # Add relevant market info
+                    prop_data = {
+                        "market_id": market.get("BettingMarketID"),
+                        "player_name": market.get("PlayerName"),
+                        "bet_type": market.get("BettingBetType"),
+                        "market_type": market.get("BettingMarketType"),
+                        "outcomes": []
+                    }
+                    
+                    # Add betting outcomes
+                    for outcome in market.get("BettingOutcomes", []):
+                        if outcome.get("IsAvailable"):
+                            prop_data["outcomes"].append({
+                                "sportsbook": outcome.get("SportsBook", {}).get("Name"),
+                                "odds": outcome.get("PayoutAmerican"),
+                                "value": outcome.get("Value")
+                            })
+                    
+                    if prop_data["outcomes"]:  # Only add if there are available outcomes
+                        player_props.append(prop_data)
+        
         return {
             "debug_url": url,
             "data": {
-                "market_count": len(data) if isinstance(data, list) else 0,
-                "first_market": data[0] if isinstance(data, list) and len(data) > 0 else None
+                "market_count": len(player_props),
+                "markets": player_props
             }
         }
     except Exception as e:

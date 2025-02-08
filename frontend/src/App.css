@@ -70,3 +70,37 @@ button {
   white-space: pre-wrap;
   word-wrap: break-word;
 }
+
+.prop-card {
+  border: 1px solid #ddd;
+  margin: 10px 0;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+}
+
+.outcomes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.outcome {
+  background-color: white;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #e9ecef;
+  min-width: 150px;
+}
+
+.outcome p {
+  margin: 5px 0;
+}
+
+select {
+  padding: 8px;
+  font-size: 16px;
+  margin: 20px 0;
+  min-width: 300px;
+}

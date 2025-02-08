@@ -10,6 +10,20 @@ interface Game {
   status: string;
 }
 
+interface BettingOutcome {
+  sportsbook: string;
+  odds: number;
+  value: number;
+}
+
+interface PlayerProp {
+  market_id: number;
+  player_name: string;
+  bet_type: string;
+  market_type: string;
+  outcomes: BettingOutcome[];
+}
+
 function App() {
   const [games, setGames] = useState<Game[]>([]);
   const [selectedEventId, setSelectedEventId] = useState('');
@@ -91,14 +105,21 @@ function App() {
       )}
       {apiData && (
         <div className="data-display">
-          <h2>API Response Data:</h2>
-          <p>Number of Markets: {apiData.market_count}</p>
-          {apiData.first_market && (
-            <div>
-              <h3>First Market Details:</h3>
-              <pre>{JSON.stringify(apiData.first_market, null, 2)}</pre>
+          <h2>Player Props ({apiData.market_count})</h2>
+          {apiData.markets.map((prop: PlayerProp, index: number) => (
+            <div key={prop.market_id} className="prop-card">
+              <h3>{prop.player_name} - {prop.bet_type}</h3>
+              <div className="outcomes">
+                {prop.outcomes.map((outcome: BettingOutcome, oIndex: number) => (
+                  <div key={oIndex} className="outcome">
+                    <p>{outcome.sportsbook}</p>
+                    <p>Value: {outcome.value}</p>
+                    <p>Odds: {outcome.odds}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-          )}
+          ))}
         </div>
       )}
     </div>
