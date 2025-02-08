@@ -31,19 +31,27 @@ class ArbitrageFinder:
             "include": "available"
         }
         
-        # Print the full URL for debugging
+        # Build debug info
+        debug_info = []
         full_url = f"{url}?key={self.api_key}&include=available"
-        print(f"Attempting to fetch data from: {full_url}")
+        debug_info.append(f"Attempting to fetch data from: {full_url}")
         
         try:
             response = requests.get(url, params=params)
-            print(f"Response status code: {response.status_code}")
-            print(f"Response content: {response.text[:200]}...")  # Print first 200 chars of response
+            debug_info.append(f"Response status code: {response.status_code}")
+            debug_info.append(f"Response content: {response.text[:200]}...")
             response.raise_for_status()
-            return response.json()
+            return {
+                "data": response.json(),
+                "debug_info": debug_info
+            }
         except requests.exceptions.RequestException as e:
-            print(f"Error making request: {str(e)}")
-            raise
+            debug_info.append(f"Error making request: {str(e)}")
+            return {
+                "data": None,
+                "debug_info": debug_info,
+                "error": str(e)
+            }
 
     def calculate_arbitrage(self, outcomes: List[BettingOutcome]) -> tuple[float, Dict[str, float]]:
         """
@@ -68,7 +76,18 @@ class ArbitrageFinder:
         return 0, {}
 
     def find_arbitrage_opportunities(self, event_id: int) -> List[ArbitrageOpportunity]:
-        markets = self.fetch_betting_markets(event_id)
+        result = self.fetch_betting_markets(event_id)
+        
+        # Print debug info
+        if "debug_info" in result:
+            for info in result["debug_info"]:
+                print(info)
+        
+        if "error" in result:
+            print(f"Error: {result['error']}")
+            return []
+        
+        markets = result.get("data", [])
         opportunities = []
         
         print(f"\nAnalyzing {len(markets)} markets...")
