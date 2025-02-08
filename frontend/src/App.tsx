@@ -201,8 +201,10 @@ function App() {
                           {Object.entries(market.arbitrage!.optimal_stakes).map(([bet, info]: [string, any]) => {
                             const stakeRatio = info.stake / 20;
                             const newStake = stakeRatio * (totalStakes[market.market_id] || 20);
-                            const newWin = (newStake * (100 + info.odds) / 100);
-                            const newProfit = newWin - (totalStakes[market.market_id] || 20);
+                            const winRatio = info.win / 20;
+                            const newWin = winRatio * (totalStakes[market.market_id] || 20);
+                            const profitRatio = info.profit / 20;
+                            const newProfit = profitRatio * (totalStakes[market.market_id] || 20);
                             
                             return (
                               <div key={bet} className="stake-info">
