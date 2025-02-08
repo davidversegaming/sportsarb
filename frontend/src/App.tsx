@@ -86,22 +86,6 @@ function App() {
     fetchGames();
   }, []);
 
-  const formatGameTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString(undefined, {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      timeZoneName: 'short'
-    });
-  };
-
-  const getTeamInitials = (teamName: string) => {
-    return teamName.split(' ').map(word => word[0]).join('');
-  };
-
   return (
     <div className="App">
       <header className="App-header">
@@ -117,7 +101,7 @@ function App() {
               <div className={`game-card ${game.has_arbitrage ? 'has-arbitrage' : ''}`}>
                 <div className="game-header">
                   <h2>{game.name}</h2>
-                  <p className="game-time">{formatGameTime(game.start_time)}</p>
+                  <p className="game-time">{new Date(game.start_time).toLocaleString()}</p>
                 </div>
                 <div className="game-teams">
                   <p>{game.away_team} @ {game.home_team}</p>
