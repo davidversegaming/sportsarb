@@ -111,6 +111,13 @@ function App() {
     return teamName.split(' ').map(word => word[0]).join('');
   };
 
+  const handleStakeChange = (marketId: number, newStake: number) => {
+    setTotalStakes(prev => ({
+      ...prev,
+      [marketId]: newStake
+    }));
+  };
+
   return (
     <div className="App">
       <header className="app-header">
@@ -179,25 +186,19 @@ function App() {
                       <div className="arbitrage-alert">
                         <h4>🎯 Arbitrage Opportunity!</h4>
                         <p>Profit: {market.arbitrage!.profit_percentage}%</p>
+                        <div className="stake-controls">
+                          <input
+                            type="number"
+                            value={totalStakes[market.market_id] || 20}
+                            onChange={(e) => handleStakeChange(market.market_id, parseFloat(e.target.value))}
+                            min="0"
+                            step="1"
+                          />
+                          <span className="guaranteed-profit">
+                            Guaranteed Profit: ${(market.arbitrage?.guaranteed_profit || 0).toFixed(2)}
+                          </span>
+                        </div>
                         <div className="stakes">
-                          <div className="stake-input">
-                            <label htmlFor={`total-stake-${market.market_id}`}>Total Stake: $</label>
-                            <input
-                              id={`total-stake-${market.market_id}`}
-                              type="number"
-                              defaultValue={20}
-                              min={0}
-                              step={1}
-                              onChange={(e) => {
-                                const total = parseFloat(e.target.value) || 20;
-                                setTotalStakes(prev => ({
-                                  ...prev,
-                                  [market.market_id]: total
-                                }));
-                              }}
-                            />
-                          </div>
-                          <h5>Optimal Stakes (${totalStakes[market.market_id] || 20} total) - Guaranteed Profit: ${((totalStakes[market.market_id] || 20) * market.arbitrage!.profit_percentage / 100).toFixed(2)}</h5>
                           {Object.entries(market.arbitrage!.optimal_stakes).map(([bet, info]: [string, any]) => {
                             const stakeRatio = info.stake / 20;
                             const newStake = stakeRatio * (totalStakes[market.market_id] || 20);
