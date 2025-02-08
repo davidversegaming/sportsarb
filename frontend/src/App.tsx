@@ -33,7 +33,7 @@ function App() {
           {loading ? 'Searching...' : 'Find Opportunities'}
         </button>
       </div>
-      {opportunities.length > 0 && (
+      {opportunities.length > 0 ? (
         <div>
           <h2>Found Opportunities:</h2>
           {opportunities.map((opp, index) => (
@@ -43,6 +43,8 @@ function App() {
             </div>
           ))}
         </div>
+      ) : (
+        opportunities && <div><h2>No arbitrage opportunities found</h2></div>
       )}
     </div>
   );
