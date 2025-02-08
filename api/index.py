@@ -31,9 +31,19 @@ class ArbitrageFinder:
             "include": "available"
         }
         
-        response = requests.get(url, params=params)
-        response.raise_for_status()
-        return response.json()
+        # Print the full URL for debugging
+        full_url = f"{url}?key={self.api_key}&include=available"
+        print(f"Attempting to fetch data from: {full_url}")
+        
+        try:
+            response = requests.get(url, params=params)
+            print(f"Response status code: {response.status_code}")
+            print(f"Response content: {response.text[:200]}...")  # Print first 200 chars of response
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"Error making request: {str(e)}")
+            raise
 
     def calculate_arbitrage(self, outcomes: List[BettingOutcome]) -> tuple[float, Dict[str, float]]:
         """
