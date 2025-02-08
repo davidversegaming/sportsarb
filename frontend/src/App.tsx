@@ -47,15 +47,15 @@ interface PlayerProp {
   market_type: string;
   outcome_types: string[];
   sportsbooks: Sportsbook[];
-  arbitrage?: ArbitrageInfo;
+  arbitrage: ArbitrageInfo | null;
 }
 
 function App() {
   const [games, setGames] = useState<Game[]>([]);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
-  const [arbitrageData, setArbitrageData] = useState<{ [key: string]: any }>({});
   const [apiData, setApiData] = useState<any>(null);
   const [error, setError] = useState('');
+  const [arbitrageData, setArbitrageData] = useState<any>({});
 
   useEffect(() => {
     const fetchGames = async () => {
@@ -66,19 +66,6 @@ function App() {
           setError(data.error);
         } else {
           setGames(data.games || []);
-          // Fetch arbitrage data for games with opportunities
-          data.games.forEach(async (game: Game) => {
-            if (game.has_arbitrage) {
-              const arbResponse = await fetch(`/api/arbitrage/${game.betting_event_id}`);
-              const arbData = await arbResponse.json();
-              if (!arbData.error) {
-                setArbitrageData(prev => ({
-                  ...prev,
-                  [game.betting_event_id]: arbData.data
-                }));
-              }
-            }
-          });
         }
       } catch (err) {
         setError('Failed to fetch games');
@@ -101,6 +88,7 @@ function App() {
       } else {
         setError('');
         setApiData(data.data);
+        setArbitrageData(data.data.arbitrageData || {});
       }
     } catch (err) {
       setError('Failed to fetch data');
@@ -120,6 +108,10 @@ function App() {
     });
   };
 
+  const getTeamInitials = (teamName: string) => {
+    return teamName.split(' ').map(word => word[0]).join('');
+  };
+
   return (
     <div className="App">
       <header className="app-header">
@@ -137,42 +129,123 @@ function App() {
         {!selectedEventId ? (
           <div className="games-grid">
             {games.map((game) => (
-              <div key={game.betting_event_id} className="game-container">
-                <div
-                  className={`game-card ${game.has_arbitrage ? 'has-arbitrage' : ''}`}
-                  onClick={() => handleGameSelect(game.betting_event_id.toString())}
-                >
-                  <div className="game-header">
-                    <h2>{game.name}</h2>
-                    <p className="game-time">{formatGameTime(game.start_time)}</p>
+              <div
+                key={game.betting_event_id}
+                className={`game-card ${game.has_arbitrage ? 'has-arbitrage' : ''}`}
+                onClick={() => handleGameSelect(game.betting_event_id.toString())}
+              >
+                {game.has_arbitrage && (
+                  <div className="arbitrage-badge">
+                    🎯 {game.best_profit}% Profit
                   </div>
-                  <div className="game-teams">
-                    <p>{game.away_team} @ {game.home_team}</p>
-                  </div>
-                  {game.has_arbitrage && (
-                    <div className="arbitrage-badge">
-                      🎯 Arbitrage Available! Best Profit: {game.best_profit}%
-                    </div>
-                  )}
+                )}
+                <div className="game-time">
+                  {formatGameTime(game.start_time)}
                 </div>
-                
-                {/* Show arbitrage opportunities below the card */}
+                <div className="teams">
+                  <div className="team away">
+                    <div className="team-circle">
+                      {getTeamInitials(game.away_team)}
+                    </div>
+                    <span>{game.away_team}</span>
+                  </div>
+                  <div className="vs">@</div>
+                  <div className="team home">
+                    <div className="team-circle">
+                      {getTeamInitials(game.home_team)}
+                    </div>
+                    <span>{game.home_team}</span>
+                  </div>
+                </div>
                 {game.has_arbitrage && arbitrageData[game.betting_event_id] && (
                   <div className="arbitrage-details">
-                    {arbitrageData[game.betting_event_id].markets.map((market: any, index: number) => (
-                      <div key={index} className="arbitrage-opportunity">
-                        <h3>{market.player_name} - {market.bet_type}</h3>
-                        <p className="profit">Profit: {market.arbitrage.profit_percentage}%</p>
-                        <div className="optimal-bets">
-                          {Object.entries(market.arbitrage.optimal_stakes).map(([bet, info]: [string, any]) => (
-                            <div key={bet} className="bet-info">
-                              <p className="bet-name">
-                                {bet}
-                                <span className="odds">
+                    {arbitrageData[game.betting_event_id].markets
+                      .filter((market: any) => market.arbitrage)
+                      .map((market: any, index: number) => (
+                        <div key={index} className="arbitrage-opportunity">
+                          <h4>🎯 Arbitrage Opportunity!</h4>
+                          <p>Profit: {market.arbitrage.profit_percentage}%</p>
+                          <div className="stakes">
+                            <h5>Optimal Stakes ($20 total) - Guaranteed Profit: ${market.arbitrage.guaranteed_profit}</h5>
+                            {Object.entries(market.arbitrage.optimal_stakes).map(([bet, info]) => (
+                              <div key={bet} className="stake-info">
+                                <div className="stake-header">
+                                  <p className="stake-bet">
+                                    {info.url ? (
+                                      <a 
+                                        href={info.url} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        {bet} 🔗
+                                      </a>
+                                    ) : (
+                                      bet
+                                    )}
+                                  </p>
+                                  <p className="stake-odds">
+                                    {info.odds > 0 ? '+' : ''}{info.odds}
+                                  </p>
+                                </div>
+                                <div className="stake-details">
+                                  <span>Stake: ${info.stake}</span>
+                                  <span>Win: ${info.win}</span>
+                                  <span>Profit: ${info.profit}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="markets-view">
+            <button 
+              className="back-button"
+              onClick={() => setSelectedEventId(null)}
+            >
+              ← Back to Games
+            </button>
+            
+            {apiData && (
+              <div className="data-display">
+                <h2>Player Props ({apiData.market_count})</h2>
+                {apiData.markets.map((prop: PlayerProp) => (
+                  <div key={prop.market_id} className="prop-card">
+                    <h3>{prop.player_name} - {prop.bet_type}</h3>
+                    {prop.arbitrage && (
+                      <div className="arbitrage-alert">
+                        <h4>🎯 Arbitrage Opportunity!</h4>
+                        <p>Profit: {prop.arbitrage.profit_percentage}%</p>
+                        <div className="stakes">
+                          <h5>Optimal Stakes ($20 total) - Guaranteed Profit: ${prop.arbitrage.guaranteed_profit}</h5>
+                          {Object.entries(prop.arbitrage.optimal_stakes).map(([bet, info]) => (
+                            <div key={bet} className="stake-info">
+                              <div className="stake-header">
+                                <p className="stake-bet">
+                                  {info.url ? (
+                                    <a 
+                                      href={info.url} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      {bet} 🔗
+                                    </a>
+                                  ) : (
+                                    bet
+                                  )}
+                                </p>
+                                <p className="stake-odds">
                                   {info.odds > 0 ? '+' : ''}{info.odds}
-                                </span>
-                              </p>
-                              <div className="bet-details">
+                                </p>
+                              </div>
+                              <div className="stake-details">
                                 <span>Stake: ${info.stake}</span>
                                 <span>Win: ${info.win}</span>
                                 <span>Profit: ${info.profit}</span>
@@ -181,42 +254,32 @@ function App() {
                           ))}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="markets-view">
-            <button className="back-button" onClick={() => setSelectedEventId(null)}>
-              ← Back to Games
-            </button>
-            <h2>All Markets</h2>
-            {apiData?.markets.map((market: PlayerProp) => (
-              <div key={market.market_id} className="market-card">
-                <h3>{market.player_name} - {market.bet_type}</h3>
-                {market.arbitrage && (
-                  <div className="arbitrage-alert">
-                    🎯 Arbitrage Opportunity! Profit: {market.arbitrage.profit_percentage}%
-                  </div>
-                )}
-                <div className="sportsbooks">
-                  {market.sportsbooks.map((book, index) => (
-                    <div key={index} className="sportsbook">
-                      <h4>{book.name}</h4>
-                      {Object.entries(book.outcomes).map(([type, data]) => (
-                        <div key={type} className="outcome">
-                          <span>{type}:</span>
-                          <span className="odds">{data.odds > 0 ? '+' : ''}{data.odds}</span>
-                          <span className="value">{data.value}</span>
+                    )}
+                    <div className="sportsbooks">
+                      {prop.sportsbooks.map((book, index) => (
+                        <div key={index} className="sportsbook-card">
+                          <h4>{book.name}</h4>
+                          <div className="lines">
+                            {prop.outcome_types.map(type => (
+                              <div key={type} className="line">
+                                <p>
+                                  {type} {book.outcomes[type].value !== null && 
+                                    `${book.outcomes[type].value}`}
+                                </p>
+                                <p>
+                                  {book.outcomes[type].odds > 0 ? '+' : ''}
+                                  {book.outcomes[type].odds}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       ))}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
         )}
       </main>
