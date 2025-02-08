@@ -3,6 +3,7 @@ import json
 from typing import Dict, List
 from dataclasses import dataclass
 from datetime import datetime
+import time
 
 @dataclass
 class BettingOutcome:
@@ -30,8 +31,44 @@ class ArbitrageFinder:
             "include": "available"
         }
         
-        response = requests.get(url, params=params)
-        return response.json()
+        max_retries = 3
+        retry_delay = 1  # seconds
+        
+        for attempt in range(max_retries):
+            try:
+                response = requests.get(url, params=params, timeout=10)
+                
+                # Check if we got a valid JSON response
+                if response.status_code == 200:
+                    try:
+                        return response.json()
+                    except json.JSONDecodeError:
+                        if attempt == max_retries - 1:
+                            raise ValueError(f"Invalid JSON response from API: {response.text}")
+                        continue
+                        
+                # Handle specific error codes
+                if response.status_code == 500:
+                    if attempt == max_retries - 1:
+                        raise requests.exceptions.RequestException(
+                            f"Server error (500) from SportsData.io API for event ID {event_id}. "
+                            "The API might be temporarily unavailable."
+                        )
+                    time.sleep(retry_delay)
+                    continue
+                    
+                # Handle other error codes
+                response.raise_for_status()
+                
+            except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
+                if attempt == max_retries - 1:
+                    raise requests.exceptions.RequestException(
+                        f"Connection error when accessing SportsData.io API: {str(e)}"
+                    )
+                time.sleep(retry_delay)
+                continue
+        
+        raise requests.exceptions.RequestException("Maximum retry attempts reached")
 
     def calculate_arbitrage(self, outcomes: List[BettingOutcome]) -> tuple[float, Dict[str, float]]:
         """
