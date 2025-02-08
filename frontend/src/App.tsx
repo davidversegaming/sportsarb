@@ -5,16 +5,23 @@ function App() {
   const [eventId, setEventId] = useState('');
   const [opportunities, setOpportunities] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const findOpportunities = async () => {
     if (!eventId) return;
     setLoading(true);
+    setError('');
     try {
       const response = await fetch(`/api/arbitrage/${eventId}`);
+      if (!response.ok) {
+        throw new Error(`Server returned ${response.status}: ${await response.text()}`);
+      }
       const data = await response.json();
-      setOpportunities(data.opportunities);
+      setOpportunities(data.opportunities || []);
     } catch (err) {
       console.error(err);
+      setError(err.message || 'Failed to fetch opportunities');
+      setOpportunities([]);
     }
     setLoading(false);
   };
@@ -33,6 +40,11 @@ function App() {
           {loading ? 'Searching...' : 'Find Opportunities'}
         </button>
       </div>
+      {error && (
+        <div className="error-message">
+          <p>{error}</p>
+        </div>
+      )}
       {opportunities.length > 0 ? (
         <div>
           <h2>Found Opportunities:</h2>
@@ -44,7 +56,7 @@ function App() {
           ))}
         </div>
       ) : (
-        opportunities && <div><h2>No arbitrage opportunities found</h2></div>
+        !error && opportunities && <div><h2>No arbitrage opportunities found</h2></div>
       )}
     </div>
   );
