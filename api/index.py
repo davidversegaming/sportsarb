@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, List
 
 app = FastAPI()
@@ -81,31 +81,37 @@ def calculate_arbitrage(outcomes: Dict[str, Dict[str, dict]]) -> tuple[float, di
 
 @app.get("/api/games")
 async def get_scheduled_games():
-    # Fix the URL to use the correct endpoint
     url = f"{BASE_URL}/BettingEvents/2025REG?key={API_KEY}"
     try:
         response = requests.get(url)
         data = response.json()
         
-        # Debug print
-        print(f"API Response type: {type(data)}")
-        print(f"API Response: {data[:200]}...")  # Print first 200 chars
-        
-        # Make sure data is a list
         if not isinstance(data, list):
             return {"error": f"Expected list but got {type(data)}", "data": data}
+        
+        # Get current time and 48 hours from now
+        now = datetime.utcnow()
+        cutoff = now + timedelta(hours=48)
             
         scheduled_games = []
         for game in data:
             if isinstance(game, dict) and game.get("GameStatus") == "Scheduled":
-                scheduled_games.append({
-                    "betting_event_id": game.get("BettingEventID"),
-                    "name": game.get("Name"),
-                    "start_time": game.get("StartDate"),
-                    "away_team": game.get("AwayTeam"),
-                    "home_team": game.get("HomeTeam"),
-                    "status": game.get("GameStatus")
-                })
+                # Parse game start time
+                start_time = datetime.fromisoformat(game.get("GameStartTime").replace('Z', '+00:00'))
+                
+                # Only include games in next 48 hours
+                if now <= start_time <= cutoff:
+                    scheduled_games.append({
+                        "betting_event_id": game.get("BettingEventID"),
+                        "name": game.get("Name"),
+                        "start_time": game.get("StartDate"),
+                        "away_team": game.get("AwayTeam"),
+                        "home_team": game.get("HomeTeam"),
+                        "status": game.get("GameStatus")
+                    })
+        
+        # Sort by start time
+        scheduled_games.sort(key=lambda x: x["start_time"])
         
         return {"games": scheduled_games}
     except Exception as e:
