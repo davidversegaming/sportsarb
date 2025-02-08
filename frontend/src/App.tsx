@@ -22,6 +22,13 @@ interface Sportsbook {
   };
 }
 
+interface ArbitrageInfo {
+  profit_percentage: number;
+  optimal_stakes: {
+    [key: string]: number;
+  };
+}
+
 interface PlayerProp {
   market_id: number;
   player_name: string;
@@ -29,6 +36,7 @@ interface PlayerProp {
   market_type: string;
   outcome_types: string[];
   sportsbooks: Sportsbook[];
+  arbitrage: ArbitrageInfo | null;
 }
 
 function App() {
@@ -116,6 +124,18 @@ function App() {
           {apiData.markets.map((prop: PlayerProp) => (
             <div key={prop.market_id} className="prop-card">
               <h3>{prop.player_name} - {prop.bet_type}</h3>
+              {prop.arbitrage && (
+                <div className="arbitrage-alert">
+                  <h4>🎯 Arbitrage Opportunity!</h4>
+                  <p>Profit: {prop.arbitrage.profit_percentage}%</p>
+                  <div className="stakes">
+                    <h5>Optimal Stakes ($1000 total):</h5>
+                    {Object.entries(prop.arbitrage.optimal_stakes).map(([bet, stake]) => (
+                      <p key={bet}>{bet}: ${stake}</p>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div className="sportsbooks">
                 {prop.sportsbooks.map((book, index) => (
                   <div key={index} className="sportsbook-card">
