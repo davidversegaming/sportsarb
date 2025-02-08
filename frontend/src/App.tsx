@@ -10,12 +10,6 @@ interface Game {
   status: string;
 }
 
-interface BettingOutcome {
-  sportsbook: string;
-  odds: number;
-  value: number;
-}
-
 interface BettingLine {
   odds: number;
   value: number | null;
