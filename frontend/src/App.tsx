@@ -55,65 +55,7 @@ function App() {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [apiData, setApiData] = useState<any>(null);
   const [error, setError] = useState('');
-  const [socket, setSocket] = useState<WebSocket | null>(null);
 
-  // Initialize WebSocket connection
-  useEffect(() => {
-    // Use WSS if the page is loaded over HTTPS
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
-
-    ws.onopen = () => {
-      console.log('WebSocket Connected');
-    };
-
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === 'arbitrage_update') {
-        // Update games list with new arbitrage data
-        setGames(prevGames => {
-          return prevGames.map(game => {
-            if (game.betting_event_id === data.game.betting_event_id) {
-              return {
-                ...game,
-                has_arbitrage: data.opportunities.market_count > 0,
-                best_profit: Math.max(...data.opportunities.markets
-                  .map((m: any) => m.arbitrage?.profit_percentage || 0))
-              };
-            }
-            return game;
-          });
-        });
-
-        // If this game is currently selected, update its arbitrage data
-        if (selectedEventId === data.game.betting_event_id.toString()) {
-          setApiData(data.opportunities);
-        }
-      }
-    };
-
-    ws.onclose = () => {
-      console.log('WebSocket Disconnected');
-      // Try to reconnect in 5 seconds
-      setTimeout(() => {
-        setSocket(null);
-      }, 5000);
-    };
-
-    ws.onerror = (error) => {
-      console.error('WebSocket Error:', error);
-      setError('Lost connection to server');
-    };
-
-    setSocket(ws);
-
-    // Cleanup on unmount
-    return () => {
-      ws.close();
-    };
-  }, [selectedEventId]);
-
-  // Initial games fetch
   useEffect(() => {
     const fetchGames = async () => {
       try {
@@ -179,11 +121,6 @@ function App() {
         {error && (
           <div className="error-message">
             {error}
-            {!socket && (
-              <button onClick={() => setSocket(null)} className="retry-button">
-                Retry Connection
-              </button>
-            )}
           </div>
         )}
         
