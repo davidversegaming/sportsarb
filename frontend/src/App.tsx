@@ -24,11 +24,18 @@ interface Sportsbook {
   };
 }
 
+interface StakeInfo {
+  stake: number;
+  win: number;
+  profit: number;
+}
+
 interface ArbitrageInfo {
   profit_percentage: number;
   optimal_stakes: {
-    [key: string]: number;
+    [key: string]: StakeInfo;
   };
+  guaranteed_profit: number;
 }
 
 interface PlayerProp {
@@ -169,9 +176,16 @@ function App() {
                         <h4>🎯 Arbitrage Opportunity!</h4>
                         <p>Profit: {prop.arbitrage.profit_percentage}%</p>
                         <div className="stakes">
-                          <h5>Optimal Stakes ($20 total):</h5>
-                          {Object.entries(prop.arbitrage.optimal_stakes).map(([bet, stake]) => (
-                            <p key={bet}>{bet}: ${stake}</p>
+                          <h5>Optimal Stakes ($20 total) - Guaranteed Profit: ${prop.arbitrage.guaranteed_profit}</h5>
+                          {Object.entries(prop.arbitrage.optimal_stakes).map(([bet, info]) => (
+                            <div key={bet} className="stake-info">
+                              <p className="stake-bet">{bet}</p>
+                              <div className="stake-details">
+                                <span>Stake: ${info.stake}</span>
+                                <span>Win: ${info.win}</span>
+                                <span>Profit: ${info.profit}</span>
+                              </div>
+                            </div>
                           ))}
                         </div>
                       </div>

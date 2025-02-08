@@ -9,26 +9,15 @@ app = FastAPI()
 API_KEY = "4f101f522aed47a99cc7a9738c2fc57d"
 BASE_URL = "https://api.sportsdata.io/v3/nba/odds/json"
 
-def calculate_arbitrage(outcomes: Dict[str, Dict[str, dict]]) -> tuple[float, dict]:
+def calculate_arbitrage(outcomes: Dict[str, Dict[str, dict]]) -> tuple[float, dict, float]:
     """
     Calculate if there's an arbitrage opportunity between different sportsbooks
-    Returns: (profit_percentage, optimal_stakes)
+    Returns: (profit_percentage, optimal_stakes, guaranteed_profit)
     """
     # First, group outcomes by their value
     outcomes_by_value = {}
     for book, lines in outcomes.items():
-        # Only process Over/Under outcomes
-        filtered_lines = {
-            bet_type: data 
-            for bet_type, data in lines.items() 
-            if bet_type in ["Over", "Under"]
-        }
-        
-        # Skip if we don't have both Over and Under
-        if len(filtered_lines) != 2:
-            continue
-            
-        for bet_type, data in filtered_lines.items():
+        for bet_type, data in lines.items():
             value = data["value"]
             odds = data["odds"]
             
@@ -40,7 +29,7 @@ def calculate_arbitrage(outcomes: Dict[str, Dict[str, dict]]) -> tuple[float, di
             outcomes_by_value[value][book][bet_type] = odds
     
     # Check each value group for arbitrage
-    best_arbitrage = (0, {})
+    best_arbitrage = (0, {}, 0)
     
     for value, books_odds in outcomes_by_value.items():
         # Convert American odds to decimal
@@ -72,11 +61,19 @@ def calculate_arbitrage(outcomes: Dict[str, Dict[str, dict]]) -> tuple[float, di
             stakes = {}
             for bet_type, (book, odds) in best_odds.items():
                 stake = (total_stake / odds) / total_probability
-                stakes[f"{book} {bet_type} ({value})"] = round(stake, 2)
+                potential_win = stake * odds
+                stakes[f"{book} {bet_type} ({value})"] = {
+                    "stake": round(stake, 2),
+                    "win": round(potential_win, 2),
+                    "profit": round(potential_win - stake, 2)
+                }
+            
+            # Calculate guaranteed profit
+            guaranteed_profit = round(total_stake * (1 - total_probability), 2)
             
             # Keep the best arbitrage opportunity
             if profit_percentage > best_arbitrage[0]:
-                best_arbitrage = (profit_percentage, stakes)
+                best_arbitrage = (profit_percentage, stakes, guaranteed_profit)
     
     return best_arbitrage
 
@@ -138,7 +135,7 @@ async def get_scheduled_games():
                                     if len(outcomes) == 2  # Must have both Over and Under
                                 }
                                 
-                                profit_percentage, _ = calculate_arbitrage(odds_for_arbitrage)
+                                profit_percentage, _, _ = calculate_arbitrage(odds_for_arbitrage)
                                 if profit_percentage > best_profit:
                                     best_profit = profit_percentage
                                     has_arbitrage = True
@@ -206,7 +203,7 @@ async def get_arbitrage(event_id: int):
                         if len(outcomes) == 2  # Must have both Over and Under
                     }
                     
-                    profit_percentage, optimal_stakes = calculate_arbitrage(odds_for_arbitrage)
+                    profit_percentage, optimal_stakes, guaranteed_profit = calculate_arbitrage(odds_for_arbitrage)
                     
                     prop_data = {
                         "market_id": market.get("BettingMarketID"),
@@ -220,11 +217,12 @@ async def get_arbitrage(event_id: int):
                                 "outcomes": outcomes
                             }
                             for sportsbook, outcomes in sportsbook_outcomes.items()
-                            if len(outcomes) == 2  # Must have both Over and Under
+                            if len(outcomes) == len(outcome_types)
                         ],
                         "arbitrage": {
                             "profit_percentage": round(profit_percentage, 2),
-                            "optimal_stakes": optimal_stakes
+                            "optimal_stakes": optimal_stakes,
+                            "guaranteed_profit": guaranteed_profit
                         } if profit_percentage > 0 else None
                     }
                     

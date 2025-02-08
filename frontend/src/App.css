@@ -318,3 +318,29 @@ select {
   font-weight: bold;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
+
+.stake-info {
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  padding: 8px;
+  margin: 8px 0;
+}
+
+.stake-bet {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.stake-details {
+  display: flex;
+  gap: 12px;
+  font-size: 0.9rem;
+  color: #495057;
+}
+
+.stake-details span {
+  background-color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #e9ecef;
+}
