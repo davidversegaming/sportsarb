@@ -120,10 +120,6 @@ function App() {
     });
   };
 
-  const getTeamInitials = (teamName: string) => {
-    return teamName.split(' ').map(word => word[0]).join('');
-  };
-
   return (
     <div className="App">
       <header className="app-header">
