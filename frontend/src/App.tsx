@@ -58,6 +58,7 @@ function App() {
   const [totalStakes, setTotalStakes] = useState<{ [key: string]: number }>({});
   const [isLoading, setIsLoading] = useState(false);
   const [teamData, setTeamData] = useState<{[key: string]: string}>({});
+  const [showOnlyArbitrage, setShowOnlyArbitrage] = useState(true);
 
   useEffect(() => {
     const fetchGames = async () => {
@@ -198,18 +199,26 @@ function App() {
           </div>
         ) : (
           <div className="markets-view">
-            <button 
-              className="back-button"
-              onClick={() => setSelectedEventId(null)}
-            >
-              ← Back to Games
-            </button>
+            <div className="view-controls">
+              <button 
+                className="back-button"
+                onClick={() => setSelectedEventId(null)}
+              >
+                ← Back to Games
+              </button>
+              <button
+                className={`filter-button ${showOnlyArbitrage ? 'active' : ''}`}
+                onClick={() => setShowOnlyArbitrage(!showOnlyArbitrage)}
+              >
+                {showOnlyArbitrage ? '🎯 Showing Arbitrage Only' : '👀 Showing All Props'}
+              </button>
+            </div>
             
             {apiData && (
               <div className="data-display">
                 <h2>Player Props ({apiData.market_count})</h2>
                 {apiData.markets
-                  .filter((market: PlayerProp) => market.arbitrage)
+                  .filter((market: PlayerProp) => !showOnlyArbitrage || market.arbitrage)
                   .map((market: PlayerProp) => (
                     <div key={market.market_id} className="prop-card">
                       <h3>{market.player_name} - {market.bet_type}</h3>
