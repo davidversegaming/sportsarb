@@ -45,6 +45,7 @@ interface PlayerProp {
   player_name: string;
   bet_type: string;
   market_type: string;
+  name: string;
   outcome_types: string[];
   sportsbooks: Sportsbook[];
   arbitrage: ArbitrageInfo | null;
@@ -225,7 +226,7 @@ function App() {
                       className={`market-card ${market.arbitrage ? 'has-arbitrage' : ''}`}
                     >
                       <div className="market-header">
-                        <h3>{market.player_name} - {market.bet_type}</h3>
+                        <h3>{market.name}</h3>
                         {market.arbitrage && (
                           <div className="profit-badge">
                             {market.arbitrage.profit_percentage.toFixed(2)}% Profit
@@ -233,47 +234,57 @@ function App() {
                         )}
                       </div>
                       
-                      {/* Only show stakes section if arbitrage exists */}
                       {market.arbitrage && (
-                        <div className="stakes">
-                          {Object.entries(market.arbitrage.optimal_stakes).map(([bet, info]: [string, any]) => {
-                            const stakeRatio = info.stake / 20;
-                            const newStake = stakeRatio * (totalStakes[market.market_id] || 20);
-                            const winRatio = info.win / 20;
-                            const newWin = winRatio * (totalStakes[market.market_id] || 20);
-                            const profitRatio = info.profit / 20;
-                            const newProfit = profitRatio * (totalStakes[market.market_id] || 20);
-                            
-                            return (
-                              <div key={bet} className="stake-info">
-                                <div className="stake-header">
-                                  <p className="stake-bet">
-                                    {info.url ? (
-                                      <a 
-                                        href={info.url} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        onClick={(e) => e.stopPropagation()}
-                                      >
-                                        {bet} 🔗
-                                      </a>
-                                    ) : (
-                                      bet
-                                    )}
-                                  </p>
-                                  <p className="stake-odds">
-                                    {info.odds > 0 ? '+' : ''}{info.odds}
-                                  </p>
+                        <>
+                          <div className="stake-input">
+                            <label>Total Stake ($):</label>
+                            <input
+                              type="number"
+                              value={totalStakes[market.market_id] || 20}
+                              onChange={(e) => handleStakeChange(market.market_id, Number(e.target.value))}
+                              min="0"
+                            />
+                          </div>
+                          <div className="stakes">
+                            {Object.entries(market.arbitrage.optimal_stakes).map(([bet, info]: [string, any]) => {
+                              const stakeRatio = info.stake / 20;
+                              const newStake = stakeRatio * (totalStakes[market.market_id] || 20);
+                              const winRatio = info.win / 20;
+                              const newWin = winRatio * (totalStakes[market.market_id] || 20);
+                              const profitRatio = info.profit / 20;
+                              const newProfit = profitRatio * (totalStakes[market.market_id] || 20);
+                              
+                              return (
+                                <div key={bet} className="stake-info">
+                                  <div className="stake-header">
+                                    <p className="stake-bet">
+                                      {info.url ? (
+                                        <a 
+                                          href={info.url} 
+                                          target="_blank" 
+                                          rel="noopener noreferrer"
+                                          onClick={(e) => e.stopPropagation()}
+                                        >
+                                          {bet} 🔗
+                                        </a>
+                                      ) : (
+                                        bet
+                                      )}
+                                    </p>
+                                    <p className="stake-odds">
+                                      {info.odds > 0 ? '+' : ''}{info.odds}
+                                    </p>
+                                  </div>
+                                  <div className="stake-details">
+                                    <span>Stake: ${newStake.toFixed(2)}</span>
+                                    <span>Win: ${newWin.toFixed(2)}</span>
+                                    <span>Profit: ${newProfit.toFixed(2)}</span>
+                                  </div>
                                 </div>
-                                <div className="stake-details">
-                                  <span>Stake: ${newStake.toFixed(2)}</span>
-                                  <span>Win: ${newWin.toFixed(2)}</span>
-                                  <span>Profit: ${newProfit.toFixed(2)}</span>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
+                              );
+                            })}
+                          </div>
+                        </>
                       )}
                     </div>
                   ))}
