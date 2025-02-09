@@ -45,7 +45,6 @@ interface PlayerProp {
   player_name: string;
   bet_type: string;
   market_type: string;
-  name: string;
   outcome_types: string[];
   sportsbooks: Sportsbook[];
   arbitrage: ArbitrageInfo | null;
@@ -59,7 +58,6 @@ function App() {
   const [totalStakes, setTotalStakes] = useState<{ [key: string]: number }>({});
   const [isLoading, setIsLoading] = useState(false);
   const [teamData, setTeamData] = useState<{[key: string]: string}>({});
-  const [showOnlyArbitrage, setShowOnlyArbitrage] = useState(true);
 
   useEffect(() => {
     const fetchGames = async () => {
@@ -200,92 +198,98 @@ function App() {
           </div>
         ) : (
           <div className="markets-view">
-            <div className="view-controls">
-              <button 
-                className="back-button"
-                onClick={() => setSelectedEventId(null)}
-              >
-                ← Back to Games
-              </button>
-              <button
-                className={`filter-button ${showOnlyArbitrage ? 'active' : ''}`}
-                onClick={() => setShowOnlyArbitrage(!showOnlyArbitrage)}
-              >
-                {showOnlyArbitrage ? '🎯 Showing Arbitrage Only' : '👀 Showing All Props'}
-              </button>
-            </div>
+            <button 
+              className="back-button"
+              onClick={() => setSelectedEventId(null)}
+            >
+              ← Back to Games
+            </button>
             
             {apiData && (
               <div className="data-display">
                 <h2>Player Props ({apiData.market_count})</h2>
                 {apiData.markets
-                  .filter((market: PlayerProp) => !showOnlyArbitrage || market.arbitrage)
+                  .filter((market: PlayerProp) => market.arbitrage)
                   .map((market: PlayerProp) => (
-                    <div 
-                      key={market.market_id} 
-                      className={`market-card ${market.arbitrage ? 'has-arbitrage' : ''}`}
-                    >
-                      <div className="market-header">
-                        <h3>{market.name}</h3>
-                        {market.arbitrage && (
-                          <div className="profit-badge">
-                            {market.arbitrage.profit_percentage.toFixed(2)}% Profit
-                          </div>
-                        )}
-                      </div>
-                      
-                      {market.arbitrage && (
-                        <>
-                          <div className="stake-input">
-                            <label>Total Stake ($):</label>
-                            <input
-                              type="number"
-                              value={totalStakes[market.market_id] || 20}
-                              onChange={(e) => handleStakeChange(market.market_id, Number(e.target.value))}
-                              min="0"
-                            />
-                          </div>
-                          <div className="stakes">
-                            {Object.entries(market.arbitrage.optimal_stakes).map(([bet, info]: [string, any]) => {
-                              const stakeRatio = info.stake / 20;
-                              const newStake = stakeRatio * (totalStakes[market.market_id] || 20);
-                              const winRatio = info.win / 20;
-                              const newWin = winRatio * (totalStakes[market.market_id] || 20);
-                              const profitRatio = info.profit / 20;
-                              const newProfit = profitRatio * (totalStakes[market.market_id] || 20);
-                              
-                              return (
-                                <div key={bet} className="stake-info">
-                                  <div className="stake-header">
-                                    <p className="stake-bet">
-                                      {info.url ? (
-                                        <a 
-                                          href={info.url} 
-                                          target="_blank" 
-                                          rel="noopener noreferrer"
-                                          onClick={(e) => e.stopPropagation()}
-                                        >
-                                          {bet} 🔗
-                                        </a>
-                                      ) : (
-                                        bet
-                                      )}
-                                    </p>
-                                    <p className="stake-odds">
-                                      {info.odds > 0 ? '+' : ''}{info.odds}
-                                    </p>
-                                  </div>
-                                  <div className="stake-details">
-                                    <span>Stake: ${newStake.toFixed(2)}</span>
-                                    <span>Win: ${newWin.toFixed(2)}</span>
-                                    <span>Profit: ${newProfit.toFixed(2)}</span>
-                                  </div>
+                    <div key={market.market_id} className="prop-card">
+                      <h3>{market.player_name} - {market.bet_type}</h3>
+                      <div className="arbitrage-alert">
+                        <h4>🎯 Arbitrage Opportunity!</h4>
+                        <p>Profit: {market.arbitrage!.profit_percentage}%</p>
+                        <div className="stake-controls">
+                          <input
+                            type="number"
+                            value={totalStakes[market.market_id] || 20}
+                            onChange={(e) => handleStakeChange(market.market_id, parseFloat(e.target.value))}
+                            min="0"
+                            step="1"
+                          />
+                          <span className="guaranteed-profit">
+                            Guaranteed Profit: ${(Object.values(market.arbitrage!.optimal_stakes)[0].profit * 
+                              ((totalStakes[market.market_id] || 20) / 20)).toFixed(2)}
+                          </span>
+                        </div>
+                        <div className="stakes">
+                          {Object.entries(market.arbitrage!.optimal_stakes).map(([bet, info]: [string, any]) => {
+                            const stakeRatio = info.stake / 20;
+                            const newStake = stakeRatio * (totalStakes[market.market_id] || 20);
+                            const winRatio = info.win / 20;
+                            const newWin = winRatio * (totalStakes[market.market_id] || 20);
+                            const profitRatio = info.profit / 20;
+                            const newProfit = profitRatio * (totalStakes[market.market_id] || 20);
+                            
+                            return (
+                              <div key={bet} className="stake-info">
+                                <div className="stake-header">
+                                  <p className="stake-bet">
+                                    {info.url ? (
+                                      <a 
+                                        href={info.url} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        {bet} 🔗
+                                      </a>
+                                    ) : (
+                                      bet
+                                    )}
+                                  </p>
+                                  <p className="stake-odds">
+                                    {info.odds > 0 ? '+' : ''}{info.odds}
+                                  </p>
                                 </div>
-                              );
-                            })}
+                                <div className="stake-details">
+                                  <span>Stake: ${newStake.toFixed(2)}</span>
+                                  <span>Win: ${newWin.toFixed(2)}</span>
+                                  <span>Profit: ${newProfit.toFixed(2)}</span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                      <div className="sportsbooks">
+                        {market.sportsbooks.map((book, index) => (
+                          <div key={index} className="sportsbook-card">
+                            <h4>{book.name}</h4>
+                            <div className="lines">
+                              {market.outcome_types.map(type => (
+                                <div key={type} className="line">
+                                  <p>
+                                    {type} {book.outcomes[type].value !== null && 
+                                      `${book.outcomes[type].value}`}
+                                  </p>
+                                  <p>
+                                    {book.outcomes[type].odds > 0 ? '+' : ''}
+                                    {book.outcomes[type].odds}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
                           </div>
-                        </>
-                      )}
+                        ))}
+                      </div>
                     </div>
                   ))}
               </div>
