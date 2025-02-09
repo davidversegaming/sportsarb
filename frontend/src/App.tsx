@@ -51,7 +51,7 @@ interface PlayerProp {
 }
 
 function App() {
-  const [games, setGames] = useState<Game[]>([]);
+  const [games, setGames] = useState<any[]>([sampleGame]);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [apiData, setApiData] = useState<any>(null);
   const [error, setError] = useState('');
@@ -189,7 +189,7 @@ function App() {
           </div>
         ) : !selectedEventId ? (
           <div className="games-grid">
-            {[...games, ...(games.length === 0 ? [sampleGame] : [])].map((game) => (
+            {[sampleGame, ...games].map((game) => (
               <div
                 key={game.betting_event_id}
                 className={`game-card ${game.has_arbitrage ? 'has-arbitrage' : ''}`}
@@ -205,9 +205,9 @@ function App() {
                 </div>
                 <div className="teams">
                   <div className="team away">
-                    {teamData[game.away_team] && (
+                    {teamData[game.away_team_key] && (
                       <img 
-                        src={teamData[game.away_team]} 
+                        src={teamData[game.away_team_key]} 
                         alt={game.away_team} 
                         className="team-logo"
                       />
@@ -216,9 +216,9 @@ function App() {
                   </div>
                   <div className="vs">@</div>
                   <div className="team home">
-                    {teamData[game.home_team] && (
+                    {teamData[game.home_team_key] && (
                       <img 
-                        src={teamData[game.home_team]} 
+                        src={teamData[game.home_team_key]} 
                         alt={game.home_team} 
                         className="team-logo"
                       />
