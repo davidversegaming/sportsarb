@@ -183,9 +183,12 @@ function App() {
                 style={{
                   '--away-primary': `#${teamData[game.away_team]?.PrimaryColor}` || '#1a1a1a',
                   '--away-secondary': `#${teamData[game.away_team]?.SecondaryColor}` || '#333333',
+                  '--away-tertiary': `#${teamData[game.away_team]?.TertiaryColor}` || '#4a4a4a',
                   '--home-primary': `#${teamData[game.home_team]?.PrimaryColor}` || '#1a1a1a',
                   '--home-secondary': `#${teamData[game.home_team]?.SecondaryColor}` || '#333333',
+                  '--home-tertiary': `#${teamData[game.home_team]?.TertiaryColor}` || '#4a4a4a',
                   '--away-primary-rgb': hexToRgb(`#${teamData[game.away_team]?.PrimaryColor}` || '#1a1a1a'),
+                  '--away-tertiary-rgb': hexToRgb(`#${teamData[game.away_team]?.TertiaryColor}` || '#4a4a4a'),
                   '--home-primary-rgb': hexToRgb(`#${teamData[game.home_team]?.PrimaryColor}` || '#1a1a1a'),
                 } as React.CSSProperties}
               >
