@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
-// Removed unused interface "Game"
-// interface Game {
-//   betting_event_id: number;
-//   name: string;
-//   start_time: string;
-//   away_team: string;
-//   home_team: string;
-//   status: string;
-//   has_arbitrage: boolean;
-//   best_profit: number;
-// }
+interface Game {
+  betting_event_id: number;
+  name: string;
+  start_time: string;
+  away_team: string;
+  home_team: string;
+  status: string;
+  has_arbitrage: boolean;
+  best_profit: number;
+}
 
 interface BettingLine {
   odds: number;
@@ -30,7 +29,7 @@ interface StakeInfo {
   win: number;
   profit: number;
   odds: number;
-  url?: string;  // Optional URL
+  url?: string;  // Add optional URL
 }
 
 interface ArbitrageInfo {
@@ -51,41 +50,8 @@ interface PlayerProp {
   arbitrage: ArbitrageInfo | null;
 }
 
-const sampleGame = {
-  betting_event_id: "sample_123",
-  start_time: new Date(Date.now() + 86400000).toISOString(), // 24 hours from now
-  away_team: "Los Angeles Lakers",
-  home_team: "Golden State Warriors",
-  away_team_key: "LAL",
-  home_team_key: "GSW",
-  has_arbitrage: true,
-  best_profit: 1.2,
-  arbitrage: {
-    market_name: "Anthony Davis - Points",
-    value: "24.5",
-    optimal_stakes: {
-      "DraftKings - Over 24.5": {
-        odds: +110,
-        stake: 9.52,
-        win: 20.00,
-        profit: 0.48,
-        url: "https://sportsbook.draftkings.com/"
-      },
-      "FanDuel - Under 24.5": {
-        odds: -105,
-        stake: 10.48,
-        win: 20.00,
-        profit: 0.48,
-        url: "https://sportsbook.fanduel.com/"
-      }
-    },
-    guaranteed_profit: 0.48,
-    profit_percentage: 1.2
-  }
-};
-
 function App() {
-  const [games, setGames] = useState<any[]>([sampleGame]);
+  const [games, setGames] = useState<Game[]>([]);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [apiData, setApiData] = useState<any>(null);
   const [error, setError] = useState('');
@@ -190,7 +156,7 @@ function App() {
           </div>
         ) : !selectedEventId ? (
           <div className="games-grid">
-            {[sampleGame, ...games].map((game) => (
+            {games.map((game) => (
               <div
                 key={game.betting_event_id}
                 className={`game-card ${game.has_arbitrage ? 'has-arbitrage' : ''}`}
@@ -206,9 +172,9 @@ function App() {
                 </div>
                 <div className="teams">
                   <div className="team away">
-                    {teamData[game.away_team_key] && (
+                    {teamData[game.away_team] && (
                       <img 
-                        src={teamData[game.away_team_key]} 
+                        src={teamData[game.away_team]} 
                         alt={game.away_team} 
                         className="team-logo"
                       />
@@ -217,9 +183,9 @@ function App() {
                   </div>
                   <div className="vs">@</div>
                   <div className="team home">
-                    {teamData[game.home_team_key] && (
+                    {teamData[game.home_team] && (
                       <img 
-                        src={teamData[game.home_team_key]} 
+                        src={teamData[game.home_team]} 
                         alt={game.home_team} 
                         className="team-logo"
                       />
