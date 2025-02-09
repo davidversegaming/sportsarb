@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
-interface TeamData {
-  WikipediaLogoUrl: string;
-  PrimaryColor: string;
-  SecondaryColor: string;
-  TertiaryColor: string;
-}
-
 interface Game {
   betting_event_id: number;
   name: string;
@@ -57,13 +50,6 @@ interface PlayerProp {
   arbitrage: ArbitrageInfo | null;
 }
 
-function hexToRgb(hex: string) {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result 
-    ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
-    : '26, 26, 26';
-}
-
 function App() {
   const [games, setGames] = useState<Game[]>([]);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
@@ -71,7 +57,7 @@ function App() {
   const [error, setError] = useState('');
   const [totalStakes, setTotalStakes] = useState<{ [key: string]: number }>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [teamData, setTeamData] = useState<{[key: string]: TeamData}>({});
+  const [teamData, setTeamData] = useState<{[key: string]: string}>({});
 
   useEffect(() => {
     const fetchGames = async () => {
@@ -99,13 +85,8 @@ function App() {
     fetch('https://api.sportsdata.io/v3/nba/scores/json/AllTeams?key=4f101f522aed47a99cc7a9738c2fc57d')
       .then(response => response.json())
       .then(data => {
-        const logoMap = data.reduce((acc: {[key: string]: TeamData}, team: any) => {
-          acc[team.Key] = {
-            WikipediaLogoUrl: team.WikipediaLogoUrl,
-            PrimaryColor: team.PrimaryColor || '#1a1a1a',
-            SecondaryColor: team.SecondaryColor || '#333333',
-            TertiaryColor: team.TertiaryColor || '#4a4a4a'
-          };
+        const logoMap = data.reduce((acc: {[key: string]: string}, team: any) => {
+          acc[team.Key] = team.WikipediaLogoUrl;
           return acc;
         }, {});
         setTeamData(logoMap);
@@ -193,7 +174,7 @@ function App() {
                   <div className="team away">
                     {teamData[game.away_team] && (
                       <img 
-                        src={teamData[game.away_team].WikipediaLogoUrl} 
+                        src={teamData[game.away_team]} 
                         alt={game.away_team} 
                         className="team-logo"
                       />
@@ -204,7 +185,7 @@ function App() {
                   <div className="team home">
                     {teamData[game.home_team] && (
                       <img 
-                        src={teamData[game.home_team].WikipediaLogoUrl} 
+                        src={teamData[game.home_team]} 
                         alt={game.home_team} 
                         className="team-logo"
                       />
