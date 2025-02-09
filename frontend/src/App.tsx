@@ -129,10 +129,6 @@ function App() {
     });
   };
 
-  const getTeamInitials = (teamName: string) => {
-    return teamName.split(' ').map(word => word[0]).join('');
-  };
-
   const handleStakeChange = (marketId: number, newStake: number) => {
     setTotalStakes(prev => ({
       ...prev,
