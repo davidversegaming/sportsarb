@@ -59,6 +59,39 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [teamData, setTeamData] = useState<{[key: string]: string}>({});
 
+  const sampleGame = {
+    betting_event_id: "sample_123",
+    start_time: new Date(Date.now() + 86400000).toISOString(), // 24 hours from now
+    away_team: "Los Angeles Lakers",
+    home_team: "Golden State Warriors",
+    away_team_key: "LAL",
+    home_team_key: "GSW",
+    has_arbitrage: true,
+    best_profit: 1.2,
+    arbitrage: {
+      market_name: "Anthony Davis - Points",
+      value: "24.5",
+      optimal_stakes: {
+        "DraftKings - Over 24.5": {
+          odds: +110,
+          stake: 9.52,
+          win: 20.00,
+          profit: 0.48,
+          url: "https://sportsbook.draftkings.com/"
+        },
+        "FanDuel - Under 24.5": {
+          odds: -105,
+          stake: 10.48,
+          win: 20.00,
+          profit: 0.48,
+          url: "https://sportsbook.fanduel.com/"
+        }
+      },
+      guaranteed_profit: 0.48,
+      profit_percentage: 1.2
+    }
+  };
+
   useEffect(() => {
     const fetchGames = async () => {
       setIsLoading(true);
@@ -156,7 +189,7 @@ function App() {
           </div>
         ) : !selectedEventId ? (
           <div className="games-grid">
-            {games.map((game) => (
+            {[...games, ...(games.length === 0 ? [sampleGame] : [])].map((game) => (
               <div
                 key={game.betting_event_id}
                 className={`game-card ${game.has_arbitrage ? 'has-arbitrage' : ''}`}
