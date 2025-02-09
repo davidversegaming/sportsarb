@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
-interface Game {
-  betting_event_id: number;
-  name: string;
-  start_time: string;
-  away_team: string;
-  home_team: string;
-  status: string;
-  has_arbitrage: boolean;
-  best_profit: number;
-}
+// Removed unused interface "Game"
+// interface Game {
+//   betting_event_id: number;
+//   name: string;
+//   start_time: string;
+//   away_team: string;
+//   home_team: string;
+//   status: string;
+//   has_arbitrage: boolean;
+//   best_profit: number;
+// }
 
 interface BettingLine {
   odds: number;
@@ -29,7 +30,7 @@ interface StakeInfo {
   win: number;
   profit: number;
   odds: number;
-  url?: string;  // Add optional URL
+  url?: string;  // Optional URL
 }
 
 interface ArbitrageInfo {
