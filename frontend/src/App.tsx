@@ -57,6 +57,7 @@ function App() {
   const [error, setError] = useState('');
   const [totalStakes, setTotalStakes] = useState<{ [key: string]: number }>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [teamData, setTeamData] = useState<{[key: string]: string}>({});
 
   useEffect(() => {
     const fetchGames = async () => {
@@ -77,6 +78,20 @@ function App() {
     };
 
     fetchGames();
+  }, []);
+
+  useEffect(() => {
+    // Fetch team data when component mounts
+    fetch('https://api.sportsdata.io/v3/nba/scores/json/AllTeams?key=4f101f522aed47a99cc7a9738c2fc57d')
+      .then(response => response.json())
+      .then(data => {
+        const logoMap = data.reduce((acc: {[key: string]: string}, team: any) => {
+          acc[team.Key] = team.WikipediaLogoUrl;
+          return acc;
+        }, {});
+        setTeamData(logoMap);
+      })
+      .catch(error => console.error('Error fetching team data:', error));
   }, []);
 
   const handleGameSelect = async (eventId: string) => {
@@ -161,16 +176,24 @@ function App() {
                 </div>
                 <div className="teams">
                   <div className="team away">
-                    <div className="team-circle">
-                      {getTeamInitials(game.away_team)}
-                    </div>
+                    {teamData[game.away_team] && (
+                      <img 
+                        src={teamData[game.away_team]} 
+                        alt={game.away_team} 
+                        className="team-logo"
+                      />
+                    )}
                     <span>{game.away_team}</span>
                   </div>
                   <div className="vs">@</div>
                   <div className="team home">
-                    <div className="team-circle">
-                      {getTeamInitials(game.home_team)}
-                    </div>
+                    {teamData[game.home_team] && (
+                      <img 
+                        src={teamData[game.home_team]} 
+                        alt={game.home_team} 
+                        className="team-logo"
+                      />
+                    )}
                     <span>{game.home_team}</span>
                   </div>
                 </div>
