@@ -250,7 +250,35 @@ select {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   cursor: pointer;
   transition: all 0.3s ease;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.game-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--away-primary, #1a1a1a) 0%, var(--away-secondary, #333333) 50%, var(--home-primary, #1a1a1a) 100%);
+}
+
+.game-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, 
+    rgba(var(--away-primary-rgb), 0.03) 0%,
+    rgba(var(--home-primary-rgb), 0.03) 100%
+  );
+  z-index: 0;
+  pointer-events: none;
+}
+
+.game-card > * {
+  position: relative;
+  z-index: 1;
 }
 
 .game-card:hover {
