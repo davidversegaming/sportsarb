@@ -1,6 +1,12 @@
+body {
+  background: #f7fafc;
+  min-height: 100vh;
+}
+
 .App {
   text-align: center;
   padding: 20px;
+  min-height: 100vh;
 }
 
 .App-logo {
@@ -193,81 +199,107 @@ select {
 }
 
 .app-header {
-  text-align: center;
-  padding: 2rem;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-  color: white;
-  margin-bottom: 2rem;
+  background: linear-gradient(135deg, #1a237e 0%, #311b92 100%);
+  padding: 2.5rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.app-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.627 0l.83.828-1.415 1.415L51.8 0h2.827zM5.373 0l-.83.828L5.96 2.243 8.2 0H5.374zM48.97 0l3.657 3.657-1.414 1.414L46.143 0h2.828zM11.03 0L7.372 3.657 8.787 5.07 13.857 0H11.03zm32.284 0L49.8 6.485 48.384 7.9l-7.9-7.9h2.83zM16.686 0L10.2 6.485 11.616 7.9l7.9-7.9h-2.83zM22.344 0L13.858 8.485 15.272 9.9l7.9-7.9h-.828zm5.656 0L19.515 8.485 17.343 10.657l7.9-7.9h2.757zm5.656 0l-6.485 6.485L25.515 8.14l7.9-7.9h-.714zm5.657 0l-4.243 4.242L33.414 5.656 41.313 0h-2.656zM64 2.828L61.172 0h2.828L64 0v2.828zM64 8.485L56.97 0h2.828L64 4.243V8.485zM64 14.142L52.728 0h2.828L64 9.9v4.243zM64 19.8L48.485 0h2.828L64 15.556V19.8zM64 25.456L44.242 0h2.828L64 21.213v4.243zm0 5.657L40 0h2.828L64 26.87v4.243zM64 36.77L35.757 0h2.828L64 32.527v4.243zm0 5.657L31.515 0h2.828L64 38.184v4.243zm0 5.657L27.272 0h2.828L64 43.84v4.243zm0 5.657L23.03 0h2.828L64 49.498v4.243zm0 5.657L18.787 0h2.828L64 55.155v4.243zM0 2.828L2.828 0H0v2.828zm0 5.657L7.07 0H4.244L0 4.243v4.242zm0 5.657L11.314 0H8.485L0 9.9v4.242zm0 5.657L15.556 0h-2.83L0 15.557v4.242zm0 5.657L19.8 0h-2.83L0 21.214v4.242zm0 5.657L24.042 0h-2.83L0 26.87v4.243zm0 5.657L28.284 0h-2.83L0 32.528v4.243zm0 5.657L32.527 0h-2.83L0 38.185v4.242zm0 5.657L36.77 0h-2.83L0 43.842v4.242zm0 5.657L41.012 0h-2.83L0 49.5v4.242zm0 5.657L45.255 0h-2.83L0 55.156v4.242z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
 }
 
 .app-header h1 {
+  font-size: 2.8rem;
+  font-weight: 700;
   margin: 0;
-  font-size: 2.5rem;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .app-header p {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.1rem;
   margin: 0.5rem 0 0;
-  opacity: 0.8;
 }
 
 .games-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-  padding: 0 1.5rem;
-  max-width: 1200px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
 .game-card {
   background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  padding: 1.75rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .game-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1);
 }
 
 .game-time {
-  text-align: center;
+  background: #f8f9fa;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
   font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 1rem;
+  color: #495057;
+  display: inline-block;
+  margin-bottom: 1.5rem;
 }
 
 .teams {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1.5rem;
 }
 
 .team {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 0.75rem;
 }
 
 .team img {
-  width: 40px;
-  height: 40px;
+  width: 60px;
+  height: 60px;
   object-fit: contain;
-  margin-bottom: 8px;
+  transition: transform 0.2s ease;
+}
+
+.game-card:hover .team img {
+  transform: scale(1.1);
 }
 
 .team span {
   font-weight: 600;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
+  color: #2d3748;
 }
 
 .vs {
   font-size: 1.2rem;
-  color: #888;
+  color: #a0aec0;
+  font-weight: 500;
 }
 
 .markets-view {
@@ -462,21 +494,24 @@ select {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 200px;
-  font-size: 1.2rem;
-  color: #666;
+  min-height: 300px;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-/* Optional: Add a spinning animation */
 .loading-spinner::after {
   content: '';
-  width: 20px;
-  height: 20px;
-  margin-left: 10px;
-  border: 2px solid #666;
-  border-top: 2px solid transparent;
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e2e8f0;
+  border-top: 3px solid #4299e1;
   border-radius: 50%;
   animation: spin 1s linear infinite;
+}
+
+.loading-spinner span {
+  color: #4a5568;
+  font-size: 1.1rem;
 }
 
 @keyframes spin {
