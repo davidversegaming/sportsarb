@@ -181,12 +181,12 @@ function App() {
                 className={`game-card ${game.has_arbitrage ? 'has-arbitrage' : ''}`}
                 onClick={() => handleGameSelect(game.betting_event_id.toString())}
                 style={{
-                  '--away-primary': teamData[game.away_team]?.PrimaryColor || '#1a1a1a',
-                  '--away-secondary': teamData[game.away_team]?.SecondaryColor || '#333333',
-                  '--home-primary': teamData[game.home_team]?.PrimaryColor || '#1a1a1a',
-                  '--home-secondary': teamData[game.home_team]?.SecondaryColor || '#333333',
-                  '--away-primary-rgb': hexToRgb(teamData[game.away_team]?.PrimaryColor || '#1a1a1a'),
-                  '--home-primary-rgb': hexToRgb(teamData[game.home_team]?.PrimaryColor || '#1a1a1a'),
+                  '--away-primary': `#${teamData[game.away_team]?.PrimaryColor}` || '#1a1a1a',
+                  '--away-secondary': `#${teamData[game.away_team]?.SecondaryColor}` || '#333333',
+                  '--home-primary': `#${teamData[game.home_team]?.PrimaryColor}` || '#1a1a1a',
+                  '--home-secondary': `#${teamData[game.home_team]?.SecondaryColor}` || '#333333',
+                  '--away-primary-rgb': hexToRgb(`#${teamData[game.away_team]?.PrimaryColor}` || '#1a1a1a'),
+                  '--home-primary-rgb': hexToRgb(`#${teamData[game.home_team]?.PrimaryColor}` || '#1a1a1a'),
                 } as React.CSSProperties}
               >
                 {game.has_arbitrage && (
