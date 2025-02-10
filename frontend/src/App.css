@@ -253,8 +253,12 @@ select {
   position: relative;
 }
 
-.game-card.has-arbitrage {
+.game-card.has-arbitrage[data-profit="high"] {
   border-color: #28a745;
+}
+
+.game-card.has-arbitrage[data-profit="low"] {
+  border-color: #ffc107;
 }
 
 .game-card:hover {

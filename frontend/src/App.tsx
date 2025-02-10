@@ -160,6 +160,7 @@ function App() {
               <div
                 key={game.betting_event_id}
                 className={`game-card ${game.has_arbitrage ? 'has-arbitrage' : ''}`}
+                data-profit={game.best_profit >= 1 ? 'high' : 'low'}
                 onClick={() => handleGameSelect(game.betting_event_id.toString())}
               >
                 {game.has_arbitrage && (
