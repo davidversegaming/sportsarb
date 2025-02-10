@@ -144,7 +144,7 @@ async def get_scheduled_games():
                                 odds_for_arbitrage = {
                                     book: outcomes
                                     for book, outcomes in sportsbook_outcomes.items()
-                                    if len(outcomes) == 2  # Must have both Over and Under
+                                    if len(outcomes) == 2 and book != "Consensus"  # Must have both Over and Under and not be Consensus
                                 }
                                 
                                 profit_percentage, _, _ = calculate_arbitrage(odds_for_arbitrage)
@@ -212,7 +212,7 @@ async def get_arbitrage(event_id: int):
                     odds_for_arbitrage = {
                         book: outcomes
                         for book, outcomes in sportsbook_outcomes.items()
-                        if len(outcomes) == 2  # Must have both Over and Under
+                        if len(outcomes) == 2 and book != "Consensus"  # Must have both Over and Under and not be Consensus
                     }
                     
                     profit_percentage, optimal_stakes, guaranteed_profit = calculate_arbitrage(odds_for_arbitrage)
