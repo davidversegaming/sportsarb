@@ -164,14 +164,16 @@ function App() {
               >
                 {game.has_arbitrage && (
                   <div className={`arbitrage-badge ${game.best_profit >= 1 ? 'arbitrage-badge-high' : 'arbitrage-badge-low'}`}>
-                    🎯 {game.best_profit}% Profit
+                    🎯 {game.best_profit}%
                   </div>
                 )}
+                
                 <div className="game-time">
                   {formatGameTime(game.start_time)}
                 </div>
+                
                 <div className="teams">
-                  <div className="team away">
+                  <div className="team">
                     {teamData[game.away_team] && (
                       <img 
                         src={teamData[game.away_team]} 
@@ -181,8 +183,10 @@ function App() {
                     )}
                     <span>{game.away_team}</span>
                   </div>
+                  
                   <div className="vs">@</div>
-                  <div className="team home">
+                  
+                  <div className="team">
                     {teamData[game.home_team] && (
                       <img 
                         src={teamData[game.home_team]} 
