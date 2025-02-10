@@ -259,7 +259,6 @@ select {
 
 .game-card {
   width: 100%;
-  max-width: 380px;
   background: white;
   border-radius: 16px;
   padding: 1.75rem;
