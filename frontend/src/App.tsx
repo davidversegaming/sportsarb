@@ -238,9 +238,6 @@ function App() {
                             const profitRatio = info.profit / 20;
                             const newProfit = profitRatio * (totalStakes[market.market_id] || 20);
                             
-                            // Extract the odds from the bet string if it exists
-                            const betDisplay = `${bet} ${info.odds > 0 ? `(+${info.odds})` : `(${info.odds})`}`;
-                            
                             return (
                               <div key={bet} className="stake-info">
                                 <div className="stake-header">
@@ -252,10 +249,10 @@ function App() {
                                         rel="noopener noreferrer"
                                         onClick={(e) => e.stopPropagation()}
                                       >
-                                        {betDisplay} 🔗
+                                        {bet} 🔗
                                       </a>
                                     ) : (
-                                      betDisplay
+                                      bet
                                     )}
                                   </p>
                                 </div>
