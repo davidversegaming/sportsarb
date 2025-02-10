@@ -238,6 +238,16 @@ function App() {
                             const profitRatio = info.profit / 20;
                             const newProfit = profitRatio * (totalStakes[market.market_id] || 20);
                             
+                            // Extract book name and bet type from the bet string
+                            const [bookName, ...betParts] = bet.split(' ');
+                            const betType = betParts.join(' ');
+                            
+                            // Find the corresponding sportsbook and odds
+                            const sportsbook = market.sportsbooks.find(book => book.name === bookName);
+                            const odds = sportsbook?.outcomes[betType.split(' ')[0]]?.odds;
+                            
+                            const betDisplay = odds ? `${bet} ${odds > 0 ? `(+${odds})` : `(${odds})`}` : bet;
+                            
                             return (
                               <div key={bet} className="stake-info">
                                 <div className="stake-header">
@@ -249,10 +259,10 @@ function App() {
                                         rel="noopener noreferrer"
                                         onClick={(e) => e.stopPropagation()}
                                       >
-                                        {bet} 🔗
+                                        {betDisplay} 🔗
                                       </a>
                                     ) : (
-                                      bet
+                                      betDisplay
                                     )}
                                   </p>
                                 </div>
