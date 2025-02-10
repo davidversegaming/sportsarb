@@ -14,29 +14,36 @@ def calculate_arbitrage(outcomes: Dict[str, Dict[str, dict]]) -> tuple[float, di
     Calculate if there's an arbitrage opportunity between different sportsbooks
     Returns: (profit_percentage, optimal_stakes, guaranteed_profit)
     """
-    # First, group outcomes by their value
+    # Group outcomes by their exact value
     outcomes_by_value = {}
     for book, lines in outcomes.items():
         for bet_type, data in lines.items():
-            value = data["value"]
-            odds = data["odds"]
-            
-            if value not in outcomes_by_value:
-                outcomes_by_value[value] = {}
-            if book not in outcomes_by_value[value]:
-                outcomes_by_value[value][book] = {}
-            
-            outcomes_by_value[value][book][bet_type] = odds
+            if data["value"] is not None:
+                value = float(data["value"])
+                if value not in outcomes_by_value:
+                    outcomes_by_value[value] = {}
+                if book not in outcomes_by_value[value]:
+                    outcomes_by_value[value][book] = {}
+                outcomes_by_value[value][book][bet_type] = data
     
-    # Check each value group for arbitrage
+    # Process each exact value
     best_arbitrage = (0, {}, 0)
     
-    for value, books_odds in outcomes_by_value.items():
+    for value, books_data in outcomes_by_value.items():
+        # Skip if we don't have both Over and Under for at least two books
+        valid_books = 0
+        for book_lines in books_data.values():
+            if "Over" in book_lines and "Under" in book_lines:
+                valid_books += 1
+        if valid_books < 2:
+            continue
+        
         # Convert American odds to decimal
         decimal_odds = {}
-        for book, lines in books_odds.items():
+        for book, lines in books_data.items():
             decimal_odds[book] = {}
-            for bet_type, odds in lines.items():
+            for bet_type, data in lines.items():
+                odds = data["odds"]
                 if odds > 0:
                     decimal_odds[book][bet_type] = 1 + (odds / 100)
                 else:
@@ -49,6 +56,10 @@ def calculate_arbitrage(outcomes: Dict[str, Dict[str, dict]]) -> tuple[float, di
                 if bet_type not in best_odds or odds > best_odds[bet_type][1]:
                     best_odds[bet_type] = (book, odds)
         
+        # Skip if we don't have both Over and Under
+        if len(best_odds) < 2:
+            continue
+            
         # Calculate total probability using best odds
         total_probability = sum(1 / odds for _, odds in best_odds.values())
         
@@ -65,22 +76,15 @@ def calculate_arbitrage(outcomes: Dict[str, Dict[str, dict]]) -> tuple[float, di
                 stake = (total_stake / odds) / total_probability
                 potential_win = stake * odds
                 
-                # Get original odds and URL for this book/bet combination
-                original_odds = None
-                url = None
-                for b, lines in books_odds.items():
-                    if b == book and isinstance(lines, dict) and bet_type in lines:
-                        if isinstance(lines[bet_type], dict):
-                            original_odds = lines[bet_type].get("odds")
-                            url = lines[bet_type].get("url")
-                        break
+                # Get original odds and value for this book/bet combination
+                original_data = books_data[book][bet_type]
                 
                 stakes[f"{book} {bet_type} ({value})"] = {
                     "stake": round(stake, 2),
                     "win": round(potential_win, 2),
                     "profit": guaranteed_profit,
-                    "odds": original_odds,
-                    "url": url
+                    "odds": original_data["odds"],
+                    "url": original_data.get("url")
                 }
             
             # Keep the best arbitrage opportunity
