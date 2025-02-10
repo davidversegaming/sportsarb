@@ -244,9 +244,9 @@ function App() {
                             
                             // Find the corresponding sportsbook and odds
                             const sportsbook = market.sportsbooks.find(book => book.name === bookName);
-                            const odds = sportsbook?.outcomes[betType.split(' ')[0]]?.odds;
+                            const odds = sportsbook?.outcomes[betType]?.odds;
                             
-                            const betDisplay = odds ? `${bet} ${odds > 0 ? `(+${odds})` : `(${odds})`}` : bet;
+                            const betDisplay = odds !== undefined ? `${bet} ${odds > 0 ? `(+${odds})` : `(${odds})`}` : bet;
                             
                             return (
                               <div key={bet} className="stake-info">
