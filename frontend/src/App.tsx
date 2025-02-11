@@ -48,6 +48,10 @@ interface PlayerProp {
     arbitrage: ArbitrageInfo | null;
 }
 
+interface PlayerImage {
+  PlayerID: number;
+  NbaDotComPlayerID: number;
+}
 
 // --- Helper Functions ---
 
@@ -118,11 +122,12 @@ const TeamDisplay: React.FC<TeamDisplayProps> = React.memo(({teamKey, teamLogos}
 
 interface PropCardProps {
     market: PlayerProp;
-    totalStakes: Record<number, number>; //Use Number
+    totalStakes: Record<number, number>;
     onStakeChange: (marketId: number, newStake: number) => void;
+    playerImages: Record<number, number>;
 }
 
-const PropCard: React.FC<PropCardProps> = React.memo(({ market, totalStakes, onStakeChange }) => {
+const PropCard: React.FC<PropCardProps> = React.memo(({ market, totalStakes, onStakeChange, playerImages }) => {
     //Memoize stake calculation
     const calculatedStakes = useMemo(() => {
         if (!market.arbitrage) {
@@ -158,10 +163,26 @@ const PropCard: React.FC<PropCardProps> = React.memo(({ market, totalStakes, onS
             });
     }, [market.arbitrage, totalStakes, market.market_id, market.sportsbooks]);
 
+    const playerImageUrl = market.player_id && playerImages[market.player_id]
+      ? `https://cdn.nba.com/headshots/nba/latest/1040x760/${playerImages[market.player_id]}.png`
+      : null;
 
   return (
     <div className="prop-card">
-      <h3>{market.player_name} - {market.bet_type}</h3>
+      <div className="prop-header">
+        {playerImageUrl && (
+          <img 
+            src={playerImageUrl}
+            alt={market.player_name}
+            className="player-headshot"
+            onError={(e) => {
+              // Hide broken images
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
+        )}
+        <h3>{market.player_name} - {market.bet_type}</h3>
+      </div>
       {market.arbitrage ? (
         <div className="arbitrage-alert">
           <h4>🎯 Arbitrage Opportunity!</h4>
@@ -251,9 +272,10 @@ interface MarketsViewProps {
   onBack: () => void;
   totalStakes: Record<number, number>;
   onStakeChange: (marketId: number, newStake: number) => void;
+  playerImages: Record<number, number>;
 }
 
-const MarketsView: React.FC<MarketsViewProps> = ({ apiData, onBack, totalStakes, onStakeChange }) => {
+const MarketsView: React.FC<MarketsViewProps> = ({ apiData, onBack, totalStakes, onStakeChange, playerImages }) => {
   const [showAllProps, setShowAllProps] = useState(false);
 
   const filteredMarkets = useMemo(() => {
@@ -299,6 +321,7 @@ const MarketsView: React.FC<MarketsViewProps> = ({ apiData, onBack, totalStakes,
             market={market}
             totalStakes={totalStakes}
             onStakeChange={onStakeChange}
+            playerImages={playerImages}
           />
         ))}
       </div>
@@ -318,6 +341,7 @@ const App: React.FC = () => {
   const [totalStakes, setTotalStakes] = useState<Record<number, number>>({}); // number, not string
   const [isLoading, setIsLoading] = useState(false);
   const [teamLogos, setTeamLogos] = useState<Record<string, string>>({}); // Better name
+  const [playerImages, setPlayerImages] = useState<Record<number, number>>({});
 
     // Use useCallback to memoize fetch functions, preventing unnecessary re-creation
     const fetchGames = useCallback(async () => {
@@ -404,6 +428,32 @@ const App: React.FC = () => {
     }));
   }, []); // Corrected useCallback
 
+  const fetchPlayerImages = useCallback(async () => {
+    try {
+      const response = await fetch('https://api.sportsdata.io/v3/nba/scores/json/Players?key=4f101f522aed47a99cc7a9738c2fc57d');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      
+      // Create mapping of SportsData PlayerID to NBA.com PlayerID
+      const imageMap = data.reduce((acc: Record<number, number>, player: PlayerImage) => {
+        if (player.NbaDotComPlayerID) {
+          acc[player.PlayerID] = player.NbaDotComPlayerID;
+        }
+        return acc;
+      }, {});
+
+      setPlayerImages(imageMap);
+    } catch (error: any) {
+      console.error('Error fetching player data:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchPlayerImages();
+  }, [fetchPlayerImages]);
+
   return (
     <div className="App">
       <header className="app-header">
@@ -433,6 +483,7 @@ const App: React.FC = () => {
             onBack={() => setSelectedEventId(null)}
             totalStakes={totalStakes}
             onStakeChange={handleStakeChange}
+            playerImages={playerImages}
           />
         )}
       </main>

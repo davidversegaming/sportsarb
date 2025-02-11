@@ -602,3 +602,23 @@ select {
   align-items: center;
   gap: 0.5rem;
 }
+
+.prop-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.player-headshot {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e2e8f0;
+}
+
+.prop-card h3 {
+  margin: 0;
+  flex: 1;
+}

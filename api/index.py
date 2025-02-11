@@ -224,6 +224,7 @@ async def get_arbitrage(event_id: int):
                     prop_data = {
                         "market_id": market.get("BettingMarketID"),
                         "player_name": market.get("PlayerName"),
+                        "player_id": market.get("PlayerID"),
                         "bet_type": market.get("BettingBetType"),
                         "market_type": market.get("BettingMarketType"),
                         "outcome_types": list(outcome_types),
