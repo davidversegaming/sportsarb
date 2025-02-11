@@ -466,8 +466,15 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <header className="app-header">
-        <h1>NBA Arbitrage Finder</h1>
-        <p>Select a game to view available betting markets</p>
+        <img 
+          src="https://cdn.nba.com/logos/nba/nba-logoman-75-word_white.svg"
+          alt="NBA Logo"
+          className="nba-logo"
+        />
+        <div className="header-content">
+          <h1>NBA Arbitrage Finder</h1>
+          <p>Select a game to view available betting markets</p>
+        </div>
       </header>
 
       <main>
