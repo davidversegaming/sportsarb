@@ -159,6 +159,9 @@ select {
   width: auto;
   max-width: 100px;
   object-fit: contain;
+  border-radius: 4px;
+  background: white;
+  padding: 2px;
 }
 
 .lines {

@@ -11,7 +11,9 @@ BASE_URL = "https://api.sportsdata.io/v3/nba/odds/json"
 
 # Add a dictionary mapping sportsbook names to their logo URLs
 SPORTSBOOK_LOGOS = {
-    "DraftKings": "https://e7.pngegg.com/pngimages/579/294/png-clipart-nfl-draftkings-daily-fantasy-sports-fantasy-football-nfl-game-sport-thumbnail.png"
+    "DraftKings": "https://e7.pngegg.com/pngimages/579/294/png-clipart-nfl-draftkings-daily-fantasy-sports-fantasy-football-nfl-game-sport-thumbnail.png",
+    "Caesars": "https://milehighsports.com/wp-content/uploads/2021/02/Caesars-300-x-300.png",
+    "FanDuel": "https://play-lh.googleusercontent.com/vRPIPzCpwjJYY6sR63bYz3ChboRD1xE4OQNHgyyVAWIWZG2yce4UWiLGv6s27Wr4hc8"
 }
 
 def calculate_arbitrage(outcomes: Dict[str, Dict[str, dict]]) -> tuple[float, dict, float]:
