@@ -513,7 +513,7 @@ const App: React.FC = () => {
         setSelectedSportsbooks(sportsbooksList);
       }
     }
-  }, [apiData]);
+  }, [apiData, selectedSportsbooks.length]); // Added missing dependency
 
   // Filter markets based on selected sportsbooks
   const filteredMarkets = useMemo(() => {
