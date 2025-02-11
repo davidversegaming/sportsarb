@@ -466,11 +466,7 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <header className="app-header">
-        <img 
-          src="https://cdn.freebiesupply.com/images/large/2x/nba-logo-transparent.png"
-          alt="NBA Logo"
-          className="nba-logo"
-        />
+        <span className="header-emoji">🎯</span>
         <div className="header-content">
           <h1>NBA Arbitrage Finder</h1>
           <p>Select a game to view available betting markets</p>

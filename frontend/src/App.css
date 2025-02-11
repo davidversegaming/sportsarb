@@ -248,40 +248,35 @@ select {
 
 .app-header {
   background: #000000;
-  padding: 1.5rem;
-  position: relative;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1rem 2rem;
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .app-header .nba-logo {
-  height: 50px;
+  height: 40px;
   width: auto;
-  filter: brightness(0) invert(1);
 }
 
 .header-content {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .app-header h1 {
-  font-size: 2.4rem;
-  font-weight: 700;
+  font-size: 1.8rem;
+  font-weight: 600;
   margin: 0;
   color: white;
-  text-transform: uppercase;
-  letter-spacing: 1px;
 }
 
 .app-header p {
   color: rgba(255, 255, 255, 0.9);
-  font-size: 1rem;
-  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+  margin: 0.25rem 0 0;
   font-weight: 300;
 }
 
@@ -686,4 +681,9 @@ select {
   height: 80px;
   width: auto;
   object-fit: contain;
+}
+
+.header-emoji {
+  font-size: 2.5rem;
+  margin-right: 0.5rem;
 }
