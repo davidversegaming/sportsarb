@@ -277,7 +277,10 @@ const SportsbooksDisplay: React.FC<SportsbooksDisplayProps> = React.memo(({marke
 });
 
 interface SportsbookFilterProps {
-  availableSportsbooks: string[];
+  availableSportsbooks: Array<{
+    name: string;
+    logo?: string;
+  }>;
   selectedSportsbooks: string[];
   onSelectionChange: (sportsbooks: string[]) => void;
 }
@@ -287,20 +290,31 @@ const SportsbookFilter: React.FC<SportsbookFilterProps> = React.memo(({ availabl
     <div className="sportsbook-filter">
       <h3>Filter Sportsbooks</h3>
       <div className="sportsbook-options">
-        {availableSportsbooks.map(book => (
-          <label key={book} className="sportsbook-option">
+        {availableSportsbooks.map(({ name, logo }) => (
+          <label key={name} className="sportsbook-option">
             <input
               type="checkbox"
-              checked={selectedSportsbooks.includes(book)}
+              checked={selectedSportsbooks.includes(name)}
               onChange={(e) => {
                 if (e.target.checked) {
-                  onSelectionChange([...selectedSportsbooks, book]);
+                  onSelectionChange([...selectedSportsbooks, name]);
                 } else {
-                  onSelectionChange(selectedSportsbooks.filter(sb => sb !== book));
+                  onSelectionChange(selectedSportsbooks.filter(sb => sb !== name));
                 }
               }}
             />
-            <span>{book}</span>
+            {logo && (
+              <img 
+                src={logo}
+                alt={`${name} logo`}
+                className="sportsbook-filter-logo"
+                onError={(e) => {
+                  // Hide broken images
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            )}
+            <span>{name}</span>
           </label>
         ))}
       </div>
@@ -382,7 +396,7 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [teamLogos, setTeamLogos] = useState<Record<string, string>>({}); // Better name
   const [playerImages, setPlayerImages] = useState<Record<number, number>>({});
-  const [availableSportsbooks, setAvailableSportsbooks] = useState<string[]>([]);
+  const [availableSportsbooks, setAvailableSportsbooks] = useState<Array<{ name: string; logo?: string }>>([]);
   const [selectedSportsbooks, setSelectedSportsbooks] = useState<string[]>([]);
 
     // Use useCallback to memoize fetch functions, preventing unnecessary re-creation
@@ -496,23 +510,28 @@ const App: React.FC = () => {
     fetchPlayerImages();
   }, [fetchPlayerImages]);
 
-  // Add new useEffect to track available sportsbooks
+  // Update the useEffect that tracks sportsbooks
   useEffect(() => {
     if (apiData?.markets) {
-      const uniqueSportsbooks = new Set<string>();
+      const uniqueSportsbooks = new Map<string, { name: string; logo?: string }>();
       apiData.markets.forEach(market => {
         market.sportsbooks.forEach(book => {
-          uniqueSportsbooks.add(book.name);
+          if (!uniqueSportsbooks.has(book.name)) {
+            uniqueSportsbooks.set(book.name, {
+              name: book.name,
+              logo: book.logo
+            });
+          }
         });
       });
-      const sportsbooksList = Array.from(uniqueSportsbooks);
+      const sportsbooksList = Array.from(uniqueSportsbooks.values());
       setAvailableSportsbooks(sportsbooksList);
       // If no sportsbooks are selected, select all by default
       if (selectedSportsbooks.length === 0) {
-        setSelectedSportsbooks(sportsbooksList);
+        setSelectedSportsbooks(sportsbooksList.map(book => book.name));
       }
     }
-  }, [apiData, selectedSportsbooks.length]); // Added missing dependency
+  }, [apiData, selectedSportsbooks.length]);
 
   // Filter markets based on selected sportsbooks
   const filteredMarkets = useMemo(() => {
