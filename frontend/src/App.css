@@ -681,3 +681,9 @@ select {
   margin: 0;
   flex: 1;
 }
+
+.nba-logo {
+  height: 80px;
+  width: auto;
+  object-fit: contain;
+}

@@ -465,11 +465,11 @@ const App: React.FC = () => {
 
   return (
     <div className="App">
-      <header className="app-header">
+      <header className="App-header">
         <img 
-          src="https://cdn.nba.com/logos/nba/nba-logoman-75-word_white.svg"
-          alt="NBA Logo"
+          src="https://cdn.freebiesupply.com/images/large/2x/nba-logo-transparent.png"
           className="nba-logo"
+          alt="NBA Logo"
         />
         <div className="header-content">
           <h1>NBA Arbitrage Finder</h1>
