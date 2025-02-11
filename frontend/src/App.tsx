@@ -249,25 +249,49 @@ interface MarketsViewProps {
 }
 
 const MarketsView: React.FC<MarketsViewProps> = ({ apiData, onBack, totalStakes, onStakeChange }) => {
+  const [showAllProps, setShowAllProps] = useState(false);
+
+  const filteredMarkets = useMemo(() => {
+    if (!apiData) return [];
+    return apiData.markets.filter((market) => 
+      showAllProps ? true : market.arbitrage
+    );
+  }, [apiData, showAllProps]);
+
   return (
     <div className="markets-view">
-      <button className="back-button" onClick={onBack}>
-        ← Back to Games
-      </button>
+      <div className="markets-header">
+        <button className="back-button" onClick={onBack}>
+          ← Back to Games
+        </button>
+        
+        <div className="view-controls">
+          <button 
+            className={`filter-button ${!showAllProps ? 'active' : ''}`}
+            onClick={() => setShowAllProps(false)}
+          >
+            Arbitrage Only
+          </button>
+          <button 
+            className={`filter-button ${showAllProps ? 'active' : ''}`}
+            onClick={() => setShowAllProps(true)}
+          >
+            All Props
+          </button>
+        </div>
+      </div>
 
       {apiData && (
         <div className="data-display">
-          <h2>Player Props ({apiData.market_count})</h2>
-          {apiData.markets
-            .filter((market) => market.arbitrage)
-            .map((market) => (
-              <PropCard
-                key={market.market_id}
-                market={market}
-                totalStakes={totalStakes}
-                onStakeChange={onStakeChange}
-              />
-            ))}
+          <h2>Player Props ({filteredMarkets.length})</h2>
+          {filteredMarkets.map((market) => (
+            <PropCard
+              key={market.market_id}
+              market={market}
+              totalStakes={totalStakes}
+              onStakeChange={onStakeChange}
+            />
+          ))}
         </div>
       )}
     </div>

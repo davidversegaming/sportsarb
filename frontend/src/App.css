@@ -551,3 +551,38 @@ select {
 .filter-button.active:hover {
   background: #218838;
 }
+
+.markets-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.view-controls {
+  display: flex;
+  gap: 1rem;
+}
+
+.filter-button {
+  background: #f0f0f0;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-button.active {
+  background: #28a745;
+  color: white;
+}
+
+.filter-button:hover {
+  background: #e0e0e0;
+}
+
+.filter-button.active:hover {
+  background: #218838;
+}
