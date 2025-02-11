@@ -253,6 +253,10 @@ const SportsbooksDisplay: React.FC<SportsbooksDisplayProps> = React.memo(({marke
                       src={book.logo}
                       alt={`${book.name} logo`}
                       className="sportsbook-logo"
+                      onError={(e) => {
+                        // Hide broken images
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
                     />
                   )}
                   <h4>{book.name}</h4>

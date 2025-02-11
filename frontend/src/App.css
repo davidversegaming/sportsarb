@@ -157,6 +157,7 @@ select {
 .sportsbook-logo {
   height: 24px;
   width: auto;
+  max-width: 100px;
   object-fit: contain;
 }
 

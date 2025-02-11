@@ -11,7 +11,7 @@ BASE_URL = "https://api.sportsdata.io/v3/nba/odds/json"
 
 # Add a dictionary mapping sportsbook names to their logo URLs
 SPORTSBOOK_LOGOS = {
-    "DraftKings": "https://cdn.rotowire.com/images/betting/book_logos/draftkings.png"
+    "DraftKings": "https://e7.pngegg.com/pngimages/579/294/png-clipart-nfl-draftkings-daily-fantasy-sports-fantasy-football-nfl-game-sport-thumbnail.png"
 }
 
 def calculate_arbitrage(outcomes: Dict[str, Dict[str, dict]]) -> tuple[float, dict, float]:
