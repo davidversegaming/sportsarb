@@ -145,10 +145,20 @@ const PropCard: React.FC<PropCardProps> = React.memo(({ market, totalStakes, onS
             const newProfit = profitRatio * baseStake;
 
             const [bookName, ...betParts] = bet.split(' ');
-            const betType = betParts.join(' ');
+            const betType = betParts[0];
             const sportsbook = market.sportsbooks.find(book => book.name === bookName);
             const odds = sportsbook?.outcomes[betType]?.odds;
             const value = sportsbook?.outcomes[betType]?.value;
+
+            // For debugging
+            console.log({
+              bet,
+              bookName,
+              betType,
+              odds,
+              value,
+              availableOutcomes: sportsbook?.outcomes
+            });
 
             const betDisplay = `${bookName} ${betType} (${value}) ${odds !== undefined ? `(${odds > 0 ? '+' : ''}${odds})` : ''}`;
 
