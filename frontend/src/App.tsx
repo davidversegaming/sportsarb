@@ -247,6 +247,32 @@ interface SportsbooksDisplayProps {
     market: PlayerProp
 }
 const SportsbooksDisplay: React.FC<SportsbooksDisplayProps> = React.memo(({market}) => {
+    // Calculate best odds for each type
+    const bestOdds = useMemo(() => {
+        const odds = {
+            Over: { value: -Infinity, isPositive: false },
+            Under: { value: -Infinity, isPositive: false }
+        };
+
+        market.sportsbooks.forEach(book => {
+            Object.entries(book.outcomes).forEach(([type, outcome]) => {
+                // For positive odds, higher is better
+                // For negative odds, closer to zero is better
+                const currentOdds = (outcome as BettingLine).odds;
+                const currentIsPositive = currentOdds > 0;
+                const bestForType = odds[type as keyof typeof odds];
+
+                if (currentIsPositive && (!bestForType.isPositive || currentOdds > bestForType.value)) {
+                    odds[type as keyof typeof odds] = { value: currentOdds, isPositive: true };
+                } else if (!currentIsPositive && (!bestForType.isPositive && currentOdds > bestForType.value)) {
+                    odds[type as keyof typeof odds] = { value: currentOdds, isPositive: false };
+                }
+            });
+        });
+
+        return odds;
+    }, [market.sportsbooks]);
+
     return(
         <div className="sportsbooks">
             {market.sportsbooks.map((book, index) => (
@@ -266,18 +292,23 @@ const SportsbooksDisplay: React.FC<SportsbooksDisplayProps> = React.memo(({marke
                   <h4>{book.name}</h4>
                 </div>
                 <div className="lines">
-                    {market.outcome_types.map(type => (
-                        <div key={type} className="line">
-                            <p>
-                                {type} {book.outcomes[type].value !== null &&
-                                `${book.outcomes[type].value}`}
-                              </p>
-                            <p>
-                                {book.outcomes[type].odds > 0 ? '+' : ''}
-                                {book.outcomes[type].odds}
-                            </p>
-                        </div>
-                    ))}
+                    {market.outcome_types.map(type => {
+                        const odds = book.outcomes[type].odds;
+                        const isBestOdds = bestOdds[type].value === odds;
+                        return (
+                            <div key={type} className="line">
+                                <p>
+                                    {type} {book.outcomes[type].value !== null &&
+                                    `${book.outcomes[type].value}`}
+                                </p>
+                                <p className={isBestOdds ? 'best-odds' : ''}>
+                                    {odds > 0 ? '+' : ''}
+                                    {odds}
+                                    {isBestOdds && ' ⭐'}
+                                </p>
+                            </div>
+                        );
+                    })}
                 </div>
               </div>
             ))}
