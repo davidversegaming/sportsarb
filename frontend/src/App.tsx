@@ -313,9 +313,10 @@ interface MarketsViewProps {
   totalStakes: Record<number, number>;
   onStakeChange: (marketId: number, newStake: number) => void;
   playerImages: Record<number, number>;
+  onBack: () => void;
 }
 
-const MarketsView: React.FC<MarketsViewProps> = ({ apiData, totalStakes, onStakeChange, playerImages }) => {
+const MarketsView: React.FC<MarketsViewProps> = ({ apiData, totalStakes, onStakeChange, playerImages, onBack }) => {
   const [showAllProps, setShowAllProps] = useState(false);
 
   const filteredMarkets = useMemo(() => {
@@ -328,6 +329,9 @@ const MarketsView: React.FC<MarketsViewProps> = ({ apiData, totalStakes, onStake
   return (
     <div className="markets-view">
       <div className="markets-header">
+        <button className="back-button" onClick={onBack}>
+          ← Back to Games
+        </button>
         <div className="view-controls">
           <button 
             className={`filter-button ${!showAllProps ? 'active' : ''}`}
@@ -556,9 +560,6 @@ const App: React.FC = () => {
           </div>
         ) : (
           <>
-            <button className="back-button" onClick={() => setSelectedEventId(null)}>
-              ← Back to Games
-            </button>
             <SportsbookFilter
               availableSportsbooks={availableSportsbooks}
               selectedSportsbooks={selectedSportsbooks}
@@ -569,6 +570,7 @@ const App: React.FC = () => {
               totalStakes={totalStakes}
               onStakeChange={handleStakeChange}
               playerImages={playerImages}
+              onBack={() => setSelectedEventId(null)}
             />
           </>
         )}
