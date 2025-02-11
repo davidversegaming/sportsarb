@@ -103,9 +103,9 @@ async def get_scheduled_games():
         if not isinstance(data, list):
             return {"error": f"Expected list but got {type(data)}", "data": data}
         
-        # Get current time and 48 hours from now
+        # Get current time and extend the window
         current_time = datetime.now()
-        cutoff_time = current_time - timedelta(hours=5)  # Subtract 5 hours to prevent early hiding
+        cutoff_time = current_time - timedelta(hours=12)  # Show games that started up to 12 hours ago
             
         scheduled_games = []
         for game in data:
@@ -113,7 +113,7 @@ async def get_scheduled_games():
                 # Parse game start time
                 start_time = datetime.fromisoformat(game.get("GameStartTime").replace('Z', '+00:00'))
                 
-                # Only include games in next 48 hours, using adjusted cutoff time
+                # Include games from 12 hours ago up to 48 hours ahead
                 if cutoff_time <= start_time <= (current_time + timedelta(hours=48)):
                     # Get arbitrage opportunities for this game
                     markets_url = f"{BASE_URL}/BettingMarkets/{game.get('BettingEventID')}?key={API_KEY}&include=available"
