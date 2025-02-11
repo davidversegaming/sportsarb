@@ -144,24 +144,24 @@ const PropCard: React.FC<PropCardProps> = React.memo(({ market, totalStakes, onS
             const profitRatio = info.profit / 20;
             const newProfit = profitRatio * baseStake;
 
+            // Extract book name and bet type
             const [bookName, ...betParts] = bet.split(' ');
             const betType = betParts.join(' ');
             const sportsbook = market.sportsbooks.find(book => book.name === bookName);
             const odds = sportsbook?.outcomes[betType]?.odds;
+            
+            // Format the bet display to include odds
+            const betDisplay = `${bookName} ${betType} (${sportsbook?.outcomes[betType]?.value}) ${odds > 0 ? '+' : ''}${odds}`;
 
-            const betDisplay = odds !== undefined
-            ? `${bet} ${odds > 0 ? `(+${odds})` : `(${odds})`}`
-            : bet;
-
-              return {
+            return {
                 bet,
                 betDisplay,
                 newStake,
                 newWin,
                 newProfit,
                 url: info.url,
-              };
-            });
+            };
+        });
     }, [market.arbitrage, totalStakes, market.market_id, market.sportsbooks]);
 
     const playerImageUrl = market.player_id && playerImages[market.player_id]
@@ -259,7 +259,7 @@ const SportsbooksDisplay: React.FC<SportsbooksDisplayProps> = React.memo(({marke
                     {market.outcome_types.map(type => (
                         <div key={type} className="line">
                             <p>
-                                {type} ({book.outcomes[type].value})
+                                {type} {book.outcomes[type].value}
                             </p>
                             <p>
                                 {book.outcomes[type].odds > 0 ? '+' : ''}
