@@ -162,51 +162,56 @@ const PropCard: React.FC<PropCardProps> = React.memo(({ market, totalStakes, onS
   return (
     <div className="prop-card">
       <h3>{market.player_name} - {market.bet_type}</h3>
-      <div className="arbitrage-alert">
-        <h4>🎯 Arbitrage Opportunity!</h4>
-        <p>Profit: {market.arbitrage!.profit_percentage}%</p>
-        <div className="stake-controls">
-          <input
-            type="number"
-            value={totalStakes[market.market_id] || 20}
-            onChange={(e) => onStakeChange(market.market_id, parseFloat(e.target.value))}
-            min="0"
-            step="1"
-          />
-          <span className="guaranteed-profit">
-             Guaranteed Profit: ${((Object.values(market.arbitrage!.optimal_stakes) as StakeInfo[])[0].profit *
-                              (totalStakes[market.market_id] || 20) / 20).toFixed(2)}
-          </span>
-        </div>
-        <div className="stakes">
-          {/*Using calculated stakes*/}
-          {calculatedStakes.map(({bet, betDisplay, newStake, newWin, newProfit, url}) => (
-            <div key={bet} className="stake-info">
-              <div className="stake-header">
-                <p className="stake-bet">
-                    {url ? (
-                        <a
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        >
-                        {betDisplay} 🔗
-                        </a>
-                    ) : (
-                        betDisplay
-                    )}
-                </p>
+      {market.arbitrage ? (
+        <div className="arbitrage-alert">
+          <h4>🎯 Arbitrage Opportunity!</h4>
+          <p>Profit: {market.arbitrage.profit_percentage}%</p>
+          <div className="stake-controls">
+            <input
+              type="number"
+              value={totalStakes[market.market_id] || 20}
+              onChange={(e) => onStakeChange(market.market_id, parseFloat(e.target.value))}
+              min="0"
+              step="1"
+            />
+            <span className="guaranteed-profit">
+              Guaranteed Profit: ${((Object.values(market.arbitrage.optimal_stakes) as StakeInfo[])[0].profit *
+                                (totalStakes[market.market_id] || 20) / 20).toFixed(2)}
+            </span>
+          </div>
+          <div className="stakes">
+            {calculatedStakes.map(({bet, betDisplay, newStake, newWin, newProfit, url}) => (
+              <div key={bet} className="stake-info">
+                <div className="stake-header">
+                  <p className="stake-bet">
+                      {url ? (
+                          <a
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          >
+                          {betDisplay} 🔗
+                          </a>
+                      ) : (
+                          betDisplay
+                      )}
+                  </p>
+                </div>
+                <div className="stake-details">
+                  <span>Stake: ${newStake.toFixed(2)}</span>
+                  <span>Win: ${newWin.toFixed(2)}</span>
+                  <span>Profit: ${newProfit.toFixed(2)}</span>
+                </div>
               </div>
-              <div className="stake-details">
-                <span>Stake: ${newStake.toFixed(2)}</span>
-                <span>Win: ${newWin.toFixed(2)}</span>
-                <span>Profit: ${newProfit.toFixed(2)}</span>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="no-arbitrage">
+          <p>No arbitrage opportunity available</p>
+        </div>
+      )}
       <SportsbooksDisplay market={market} />
     </div>
   );
@@ -252,10 +257,10 @@ const MarketsView: React.FC<MarketsViewProps> = ({ apiData, onBack, totalStakes,
   const [showAllProps, setShowAllProps] = useState(false);
 
   const filteredMarkets = useMemo(() => {
-    if (!apiData) return [];
-    return apiData.markets.filter((market) => 
-      showAllProps ? true : market.arbitrage
-    );
+    if (!apiData?.markets) return [];
+    return showAllProps 
+      ? apiData.markets 
+      : apiData.markets.filter(market => market.arbitrage !== null);
   }, [apiData, showAllProps]);
 
   return (
@@ -270,30 +275,33 @@ const MarketsView: React.FC<MarketsViewProps> = ({ apiData, onBack, totalStakes,
             className={`filter-button ${!showAllProps ? 'active' : ''}`}
             onClick={() => setShowAllProps(false)}
           >
-            Arbitrage Only
+            Arbitrage Only ({apiData?.markets.filter(m => m.arbitrage !== null).length || 0})
           </button>
           <button 
             className={`filter-button ${showAllProps ? 'active' : ''}`}
             onClick={() => setShowAllProps(true)}
           >
-            All Props
+            All Props ({apiData?.markets.length || 0})
           </button>
         </div>
       </div>
 
-      {apiData && (
-        <div className="data-display">
-          <h2>Player Props ({filteredMarkets.length})</h2>
-          {filteredMarkets.map((market) => (
-            <PropCard
-              key={market.market_id}
-              market={market}
-              totalStakes={totalStakes}
-              onStakeChange={onStakeChange}
-            />
-          ))}
-        </div>
-      )}
+      <div className="data-display">
+        <h2>
+          {showAllProps 
+            ? `All Player Props (${filteredMarkets.length})` 
+            : `Arbitrage Opportunities (${filteredMarkets.length})`
+          }
+        </h2>
+        {filteredMarkets.map((market) => (
+          <PropCard
+            key={market.market_id}
+            market={market}
+            totalStakes={totalStakes}
+            onStakeChange={onStakeChange}
+          />
+        ))}
+      </div>
     </div>
   );
 };
