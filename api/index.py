@@ -105,11 +105,11 @@ async def get_scheduled_games():
         
         # Get current time and extend the window
         current_time = datetime.now()
-        cutoff_time = current_time - timedelta(hours=12)  # Show games that started up to 12 hours ago
+        cutoff_time = current_time - timedelta(hours=9)  # Show games that started up to 9 hours ago
             
         scheduled_games = []
         for game in data:
-            if isinstance(game, dict) and game.get("GameStatus") == "Scheduled":
+            if isinstance(game, dict) and game.get("GameStatus") in ["Scheduled", "InProgress"]:
                 # Parse game start time
                 start_time = datetime.fromisoformat(game.get("GameStartTime").replace('Z', '+00:00'))
                 
