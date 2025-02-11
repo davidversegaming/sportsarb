@@ -144,24 +144,24 @@ const PropCard: React.FC<PropCardProps> = React.memo(({ market, totalStakes, onS
             const profitRatio = info.profit / 20;
             const newProfit = profitRatio * baseStake;
 
-            // Extract book name and bet type
             const [bookName, ...betParts] = bet.split(' ');
             const betType = betParts.join(' ');
             const sportsbook = market.sportsbooks.find(book => book.name === bookName);
             const odds = sportsbook?.outcomes[betType]?.odds;
-            
-            // Format the bet display to include odds
-            const betDisplay = `${bookName} ${betType} (${sportsbook?.outcomes[betType]?.value}) ${odds > 0 ? '+' : ''}${odds}`;
 
-            return {
+            const betDisplay = odds !== undefined
+            ? `${bet} ${odds > 0 ? `(+${odds})` : `(${odds})`}`
+            : bet;
+
+              return {
                 bet,
                 betDisplay,
                 newStake,
                 newWin,
                 newProfit,
                 url: info.url,
-            };
-        });
+              };
+            });
     }, [market.arbitrage, totalStakes, market.market_id, market.sportsbooks]);
 
     const playerImageUrl = market.player_id && playerImages[market.player_id]
@@ -205,18 +205,18 @@ const PropCard: React.FC<PropCardProps> = React.memo(({ market, totalStakes, onS
               <div key={bet} className="stake-info">
                 <div className="stake-header">
                   <p className="stake-bet">
-                    {url ? (
-                      <a
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {betDisplay} 🔗
-                      </a>
-                    ) : (
-                      betDisplay
-                    )}
+                      {url ? (
+                          <a
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          >
+                          {betDisplay} 🔗
+                          </a>
+                      ) : (
+                          betDisplay
+                      )}
                   </p>
                 </div>
                 <div className="stake-details">
@@ -249,6 +249,7 @@ const SportsbooksDisplay: React.FC<SportsbooksDisplayProps> = React.memo(({marke
                       alt={`${book.name} logo`}
                       className="sportsbook-logo"
                       onError={(e) => {
+                        // Hide broken images
                         (e.target as HTMLImageElement).style.display = 'none';
                       }}
                     />
@@ -259,8 +260,9 @@ const SportsbooksDisplay: React.FC<SportsbooksDisplayProps> = React.memo(({marke
                     {market.outcome_types.map(type => (
                         <div key={type} className="line">
                             <p>
-                                {type} {book.outcomes[type].value}
-                            </p>
+                                {type} {book.outcomes[type].value !== null &&
+                                `${book.outcomes[type].value}`}
+                              </p>
                             <p>
                                 {book.outcomes[type].odds > 0 ? '+' : ''}
                                 {book.outcomes[type].odds}
@@ -502,4 +504,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-
