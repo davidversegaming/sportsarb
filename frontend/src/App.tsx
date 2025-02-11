@@ -149,9 +149,7 @@ const PropCard: React.FC<PropCardProps> = React.memo(({ market, totalStakes, onS
             const sportsbook = market.sportsbooks.find(book => book.name === bookName);
             const odds = sportsbook?.outcomes[betType]?.odds;
 
-            const betDisplay = odds !== undefined
-            ? `${bet} ${sportsbook?.outcomes[betType]?.odds > 0 ? `(+${sportsbook.outcomes[betType].odds})` : `(${sportsbook.outcomes[betType].odds})`}`
-            : bet;
+            const betDisplay = `${bookName} ${betType} (${odds > 0 ? '+' : ''}${odds})`;
 
               return {
                 bet,
