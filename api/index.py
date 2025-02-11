@@ -13,7 +13,9 @@ BASE_URL = "https://api.sportsdata.io/v3/nba/odds/json"
 SPORTSBOOK_LOGOS = {
     "DraftKings": "https://e7.pngegg.com/pngimages/579/294/png-clipart-nfl-draftkings-daily-fantasy-sports-fantasy-football-nfl-game-sport-thumbnail.png",
     "Caesars": "https://milehighsports.com/wp-content/uploads/2021/02/Caesars-300-x-300.png",
-    "FanDuel": "https://play-lh.googleusercontent.com/vRPIPzCpwjJYY6sR63bYz3ChboRD1xE4OQNHgyyVAWIWZG2yce4UWiLGv6s27Wr4hc8"
+    "FanDuel": "https://play-lh.googleusercontent.com/vRPIPzCpwjJYY6sR63bYz3ChboRD1xE4OQNHgyyVAWIWZG2yce4UWiLGv6s27Wr4hc8",
+    "Fanatics": "https://play-lh.googleusercontent.com/7BWLjSiMUcUGGuQnJdRT4cGZuOApWrkCbQsPCIBC9VzuMOrtkrrdm0UtaN5-tnrfTQo",
+    "BetMGM": "https://play-lh.googleusercontent.com/VSh6XgCwdUC36na5lSKLH8PG-hU-alud1Zj4UkyBv9j4_2VIq_zFVz9TTS6Pog-IeBUx"
 }
 
 def calculate_arbitrage(outcomes: Dict[str, Dict[str, dict]]) -> tuple[float, dict, float]:
