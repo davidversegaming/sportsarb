@@ -136,51 +136,83 @@ select {
 }
 
 .sportsbook-card {
-  background-color: white;
-  padding: 15px;
-  border-radius: 8px;
-  border: 1px solid #e9ecef;
-  min-width: 200px;
+  background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+  padding: 1.25rem;
+  border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  min-width: 220px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 
+              0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sportsbook-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08), 
+              0 2px 4px rgba(0, 0, 0, 0.12);
 }
 
 .sportsbook-card h4 {
   margin: 0;
+  font-size: 1.1rem;
+  color: #2d3748;
+  font-weight: 600;
 }
 
 .sportsbook-header {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
 }
 
 .sportsbook-logo {
-  height: 24px;
+  height: 28px;
   width: auto;
-  max-width: 100px;
+  max-width: 120px;
   object-fit: contain;
-  border-radius: 4px;
+  border-radius: 6px;
   background: white;
-  padding: 2px;
+  padding: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .lines {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.75rem;
 }
 
 .line {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 5px;
-  background-color: #f8f9fa;
-  border-radius: 4px;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid rgba(226, 232, 240, 0.6);
+  transition: background-color 0.15s ease;
+}
+
+.line:hover {
+  background-color: #f8fafc;
 }
 
 .line p {
   margin: 0;
+  font-size: 0.95rem;
+}
+
+.line p:last-child {
+  font-weight: 600;
+  color: #2563eb;
+  background: #eff6ff;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  min-width: 70px;
+  text-align: center;
 }
 
 .arbitrage-alert {
