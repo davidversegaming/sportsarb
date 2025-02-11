@@ -205,18 +205,18 @@ const PropCard: React.FC<PropCardProps> = React.memo(({ market, totalStakes, onS
               <div key={bet} className="stake-info">
                 <div className="stake-header">
                   <p className="stake-bet">
-                      {url ? (
-                          <a
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          >
-                          {betDisplay} 🔗
-                          </a>
-                      ) : (
-                          betDisplay
-                      )}
+                    {url ? (
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {betDisplay} 🔗
+                      </a>
+                    ) : (
+                      betDisplay
+                    )}
                   </p>
                 </div>
                 <div className="stake-details">
@@ -249,7 +249,6 @@ const SportsbooksDisplay: React.FC<SportsbooksDisplayProps> = React.memo(({marke
                       alt={`${book.name} logo`}
                       className="sportsbook-logo"
                       onError={(e) => {
-                        // Hide broken images
                         (e.target as HTMLImageElement).style.display = 'none';
                       }}
                     />
@@ -260,9 +259,8 @@ const SportsbooksDisplay: React.FC<SportsbooksDisplayProps> = React.memo(({marke
                     {market.outcome_types.map(type => (
                         <div key={type} className="line">
                             <p>
-                                {type} {book.outcomes[type].value !== null &&
-                                `${book.outcomes[type].value}`}
-                              </p>
+                                {type} ({book.outcomes[type].value})
+                            </p>
                             <p>
                                 {book.outcomes[type].odds > 0 ? '+' : ''}
                                 {book.outcomes[type].odds}

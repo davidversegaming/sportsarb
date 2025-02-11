@@ -203,6 +203,13 @@ select {
 .line p {
   margin: 0;
   font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.line p:first-child {
+  color: #4a5568;
 }
 
 .line p:last-child {
@@ -418,8 +425,25 @@ select {
 }
 
 .stake-bet {
-  font-weight: bold;
+  font-weight: 600;
   margin: 0;
+  color: #2d3748;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stake-bet a {
+  color: inherit;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stake-bet a:hover {
+  color: #2c5282;
+  text-decoration: underline;
 }
 
 .stake-odds {
@@ -453,19 +477,6 @@ select {
   border: 1px solid #e9ecef;
   flex: 1;
   text-align: center;
-}
-
-.stake-bet a {
-  color: inherit;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.stake-bet a:hover {
-  color: #2c5282;
-  text-decoration: underline;
 }
 
 .game-container {
