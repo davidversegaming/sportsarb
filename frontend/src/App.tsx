@@ -177,14 +177,13 @@ const PropCard: React.FC<PropCardProps> = React.memo(({ market, totalStakes, onS
             alt={market.player_name}
             className="player-headshot"
             onError={(e) => {
-              // Hide broken images
               (e.target as HTMLImageElement).style.display = 'none';
             }}
           />
         )}
         <h3>{market.player_name} - {market.bet_type}</h3>
       </div>
-      {market.arbitrage ? (
+      {market.arbitrage && (
         <div className="arbitrage-alert">
           <h4>🎯 Arbitrage Opportunity!</h4>
           <p>Profit: {market.arbitrage.profit_percentage}%</p>
@@ -228,10 +227,6 @@ const PropCard: React.FC<PropCardProps> = React.memo(({ market, totalStakes, onS
               </div>
             ))}
           </div>
-        </div>
-      ) : (
-        <div className="no-arbitrage">
-          <p>No arbitrage opportunity available</p>
         </div>
       )}
       <SportsbooksDisplay market={market} />
