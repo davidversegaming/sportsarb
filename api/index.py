@@ -9,6 +9,11 @@ app = FastAPI()
 API_KEY = "4f101f522aed47a99cc7a9738c2fc57d"
 BASE_URL = "https://api.sportsdata.io/v3/nba/odds/json"
 
+# Add a dictionary mapping sportsbook names to their logo URLs
+SPORTSBOOK_LOGOS = {
+    "DraftKings": "https://cdn.rotowire.com/images/betting/book_logos/draftkings.png"
+}
+
 def calculate_arbitrage(outcomes: Dict[str, Dict[str, dict]]) -> tuple[float, dict, float]:
     """
     Calculate if there's an arbitrage opportunity between different sportsbooks
@@ -231,6 +236,7 @@ async def get_arbitrage(event_id: int):
                         "sportsbooks": [
                             {
                                 "name": sportsbook,
+                                "logo": SPORTSBOOK_LOGOS.get(sportsbook),  # Add logo URL
                                 "outcomes": outcomes
                             }
                             for sportsbook, outcomes in sportsbook_outcomes.items()

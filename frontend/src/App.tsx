@@ -21,7 +21,8 @@ interface BettingLine {
 
 interface Sportsbook {
   name: string;
-  outcomes: Record<string, BettingLine>;  // Use Record for type safety
+  logo?: string;  // Add optional logo URL
+  outcomes: Record<string, BettingLine>;
 }
 
 interface StakeInfo {
@@ -246,8 +247,17 @@ const SportsbooksDisplay: React.FC<SportsbooksDisplayProps> = React.memo(({marke
         <div className="sportsbooks">
             {market.sportsbooks.map((book, index) => (
               <div key={index} className="sportsbook-card">
-                <h4>{book.name}</h4>
-                    <div className="lines">
+                <div className="sportsbook-header">
+                  {book.logo && (
+                    <img 
+                      src={book.logo}
+                      alt={`${book.name} logo`}
+                      className="sportsbook-logo"
+                    />
+                  )}
+                  <h4>{book.name}</h4>
+                </div>
+                <div className="lines">
                     {market.outcome_types.map(type => (
                         <div key={type} className="line">
                             <p>
