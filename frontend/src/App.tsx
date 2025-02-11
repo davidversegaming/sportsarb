@@ -372,13 +372,24 @@ interface MarketsViewProps {
 
 const MarketsView: React.FC<MarketsViewProps> = ({ apiData, totalStakes, onStakeChange, playerImages, onBack }) => {
   const [showAllProps, setShowAllProps] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const filteredMarkets = useMemo(() => {
     if (!apiData?.markets) return [];
-    return showAllProps 
-      ? apiData.markets 
-      : apiData.markets.filter(market => market.arbitrage !== null);
-  }, [apiData, showAllProps]);
+    
+    return apiData.markets
+      .filter(market => {
+        // First filter by arbitrage if needed
+        if (!showAllProps && market.arbitrage === null) return false;
+        
+        // Then filter by search query
+        if (searchQuery) {
+          const searchText = `${market.player_name} ${market.bet_type}`.toLowerCase();
+          return searchText.includes(searchQuery.toLowerCase());
+        }
+        return true;
+      });
+  }, [apiData, showAllProps, searchQuery]);
 
   return (
     <div className="markets-view">
@@ -400,6 +411,16 @@ const MarketsView: React.FC<MarketsViewProps> = ({ apiData, totalStakes, onStake
             All Props ({apiData?.markets.length || 0})
           </button>
         </div>
+      </div>
+
+      <div className="search-container">
+        <input
+          type="text"
+          placeholder="Search by player name or bet type..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="search-input"
+        />
       </div>
 
       <div className="data-display">
