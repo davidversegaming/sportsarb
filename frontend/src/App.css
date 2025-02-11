@@ -698,3 +698,48 @@ select {
   font-size: 2.5rem;
   margin-right: 0.5rem;
 }
+
+.sportsbook-filter {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sportsbook-filter h3 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.sportsbook-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.sportsbook-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.sportsbook-option:hover {
+  background: #e9ecef;
+}
+
+.sportsbook-option input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+.sportsbook-option span {
+  font-size: 0.9rem;
+  color: #495057;
+}

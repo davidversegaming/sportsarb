@@ -276,6 +276,38 @@ const SportsbooksDisplay: React.FC<SportsbooksDisplayProps> = React.memo(({marke
     )
 });
 
+interface SportsbookFilterProps {
+  availableSportsbooks: string[];
+  selectedSportsbooks: string[];
+  onSelectionChange: (sportsbooks: string[]) => void;
+}
+
+const SportsbookFilter: React.FC<SportsbookFilterProps> = React.memo(({ availableSportsbooks, selectedSportsbooks, onSelectionChange }) => {
+  return (
+    <div className="sportsbook-filter">
+      <h3>Filter Sportsbooks</h3>
+      <div className="sportsbook-options">
+        {availableSportsbooks.map(book => (
+          <label key={book} className="sportsbook-option">
+            <input
+              type="checkbox"
+              checked={selectedSportsbooks.includes(book)}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  onSelectionChange([...selectedSportsbooks, book]);
+                } else {
+                  onSelectionChange(selectedSportsbooks.filter(sb => sb !== book));
+                }
+              }}
+            />
+            <span>{book}</span>
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+});
+
 interface MarketsViewProps {
   apiData: { market_count: number; markets: PlayerProp[] } | null;
   onBack: () => void;
@@ -351,6 +383,8 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [teamLogos, setTeamLogos] = useState<Record<string, string>>({}); // Better name
   const [playerImages, setPlayerImages] = useState<Record<number, number>>({});
+  const [availableSportsbooks, setAvailableSportsbooks] = useState<string[]>([]);
+  const [selectedSportsbooks, setSelectedSportsbooks] = useState<string[]>([]);
 
     // Use useCallback to memoize fetch functions, preventing unnecessary re-creation
     const fetchGames = useCallback(async () => {
@@ -463,6 +497,42 @@ const App: React.FC = () => {
     fetchPlayerImages();
   }, [fetchPlayerImages]);
 
+  // Add new useEffect to track available sportsbooks
+  useEffect(() => {
+    if (apiData?.markets) {
+      const uniqueSportsbooks = new Set<string>();
+      apiData.markets.forEach(market => {
+        market.sportsbooks.forEach(book => {
+          uniqueSportsbooks.add(book.name);
+        });
+      });
+      const sportsbooksList = Array.from(uniqueSportsbooks);
+      setAvailableSportsbooks(sportsbooksList);
+      // If no sportsbooks are selected, select all by default
+      if (selectedSportsbooks.length === 0) {
+        setSelectedSportsbooks(sportsbooksList);
+      }
+    }
+  }, [apiData]);
+
+  // Filter markets based on selected sportsbooks
+  const filteredMarkets = useMemo(() => {
+    if (!apiData?.markets || selectedSportsbooks.length === 0) return apiData;
+    
+    const filtered = apiData.markets.map(market => ({
+      ...market,
+      sportsbooks: market.sportsbooks.filter(book => selectedSportsbooks.includes(book.name)),
+      arbitrage: market.arbitrage && market.sportsbooks.some(book => selectedSportsbooks.includes(book.name))
+        ? market.arbitrage
+        : null
+    })).filter(market => market.sportsbooks.length > 0);
+
+    return {
+      market_count: filtered.length,
+      markets: filtered
+    };
+  }, [apiData, selectedSportsbooks]);
+
   return (
     <div className="App">
       <header className="app-header">
@@ -490,13 +560,23 @@ const App: React.FC = () => {
             ))}
           </div>
         ) : (
-          <MarketsView
-            apiData={apiData}
-            onBack={() => setSelectedEventId(null)}
-            totalStakes={totalStakes}
-            onStakeChange={handleStakeChange}
-            playerImages={playerImages}
-          />
+          <>
+            <button className="back-button" onClick={() => setSelectedEventId(null)}>
+              ← Back to Games
+            </button>
+            <SportsbookFilter
+              availableSportsbooks={availableSportsbooks}
+              selectedSportsbooks={selectedSportsbooks}
+              onSelectionChange={setSelectedSportsbooks}
+            />
+            <MarketsView
+              apiData={filteredMarkets}
+              onBack={() => setSelectedEventId(null)}
+              totalStakes={totalStakes}
+              onStakeChange={handleStakeChange}
+              playerImages={playerImages}
+            />
+          </>
         )}
       </main>
     </div>
